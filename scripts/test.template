@@ -1,0 +1,12 @@
+test1
+test2
+<? if (true) {?>
+test3
+test4
+<?}?>
+test5
+<? if (false) {?>
+test6
+test7
+<?}?>
+test8
