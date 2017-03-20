@@ -1,12 +1,15 @@
 test1
 test2
-<? if (true) {?>
+<? if (test.first == 2) {?>
 test3
 test4
 <?}?>
 test5
-<? if (false) {?>
+<? if (test.first == 1) {?>
 test6
 test7
 <?}?>
 test8
+<?for(let i = 0; i < 10; i++) {?>
+test<?console.log(i)?>
+<?}?>
