@@ -1,6 +1,5 @@
 #!/usr/bin/node
 
-
 function generate(inputData) {
     let outData = "console.log(\"";
 
@@ -12,9 +11,19 @@ function generate(inputData) {
                 if (c == "<")
                     state = "<"
                 else if (c == "\n")
-                    outData += "\\n\\\n";
+                    outData += "\\n\\\n\t";
                 else
                     outData += c;
+                break;
+            case "<":
+                if (c == "?") {
+                    outData += "\");\n"
+                    state = "js"
+                }
+                if (c == "!") {
+                    outData += "\" + ";
+                    state = "js_insert";
+                }
                 break;
             case "js":
                 if (c == "?")
@@ -22,15 +31,21 @@ function generate(inputData) {
                 else
                     outData += c;
                 break
-            case "<":
-                if (c == "?") {
-                    outData += "\");\n"
-                    state = "js"
-                }
-                break;
             case "?":
                 if (c == ">") {
-                    outData += "\nconsole.log(\"";
+                    outData += "\noutput(\"";
+                    state = "text";
+                }
+                break;
+            case "js_insert":
+                if (c == "!")
+                    state = "!";
+                else
+                    outData += c;
+                break;
+            case "!":
+                if (c == ">") {
+                    outData += " + \"";
                     state = "text";
                 }
                 break;
@@ -40,40 +55,12 @@ function generate(inputData) {
     return outData;
 }
 
-function addProperty(object, key, value) {
-    var orig_object = object;
-    var keys = key.split('.');
-
-    for (var i = 0; i < keys.length - 1; i++) {
-        var k = keys[i];
-        if (!object.hasOwnProperty(k)) {
-            object[k] = {};
-            object = object[k];
-        }
-    }
-
-    object[keys.slice(-1)] = value;
-
-    return orig_object;
-}
-
 let args = process.argv.slice(2);
 let inputFileName = args[0];
-let outFileName = args[1];
-
 let fs = require('fs');
 let inputData = fs.readFileSync(inputFileName, "utf8");
 
-let rawParams = {"test.first":2, "test.second.third":"test"};
-let outData = generate(inputData);
-let params = {};
+let jsScript = generate(inputData);
 
-for (rawParam in rawParams) {
-    addProperty(params, rawParam, rawParams[rawParam]);
-}
+console.log(jsScript);
 
-console.log(outData);
-
-console.log(params)
-with (params)
-    eval (outData);

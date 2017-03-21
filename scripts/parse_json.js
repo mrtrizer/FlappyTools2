@@ -20,4 +20,4 @@ args.forEach(function (val, index, array) {
 });
 
 for (key in outParamList)
-    console.log(key + ":" + outParamList[key]);
+    console.log(key + ":" + JSON.stringify(outParamList[key]));

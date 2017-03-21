@@ -11,5 +11,5 @@ test7
 <?}?>
 test8
 <?for(let i = 0; i < 10; i++) {?>
-test<?console.log(i)?>
+test<!i!>
 <?}?>
