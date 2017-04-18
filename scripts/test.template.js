@@ -1,29 +1,29 @@
-output("test1\n\
-	test2\n\
-	");
-
- if (this.test.first == 2) {
-output("\n\
-	test3\n\
-	test4\n\
-	");
+"use strict"
+output("");
+if (test.first == 2) {
+    output("\n" + 
+            "test.first = ");
+    output(test.first);
+    output("\n" + 
+            "");
 }
-output("\n\
-	test5\n\
-	");
- if (test.first == 1) {
-output("\n\
-	test6\n\
-	test7\n\
-	");
+output("\n" + 
+        "separator\n" + 
+        "");
+if (test.first == 1) {
+    output("\n" + 
+            "test.first equal to 1\n" + 
+            "");
 }
-output("\n\
-	test8\n\
-	");
+output("\n" + 
+        "separator\n" + 
+        "");
 for(let i = 0; i < 10; i++) {
-output("\n\
-	test" + i + "\n\
-	");
+    output("\n" + 
+            "test");
+    output(i);
+    output("\n" + 
+            "");
 }
-output("\n\
-	")
+output("\n" + 
+        "");

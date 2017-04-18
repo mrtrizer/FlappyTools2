@@ -13,7 +13,8 @@ function genTabs(tabN) {
 }
 
 function generate(inputData) {
-    let outData = "console.log(\"";
+    let outData = "\"use strict\"\n" ;
+    outData += "output(\"";
 
     let lineStart = false;
     let tabN = 0;
@@ -25,7 +26,7 @@ function generate(inputData) {
                 if (c == "<")
                     state = "<";
                 else if (c == "\n")
-                    outData += "\\n\\\n" + genTabs(tabN) + "    ";
+                    outData += "\\n\" + \n" + genTabs(tabN) + "        \"";
                 else if (c == "[") {
                     state = "[";
                     outData += "\");\n" + genTabs(tabN) + "output("
@@ -66,7 +67,9 @@ function generate(inputData) {
                 }
                 break;
             case "[":
-                if (c == "]") {
+                if (c == "\n")
+                    ;// skip
+                else if (c == "]") {
                     outData += ");\n" + genTabs(tabN) + "output(\""
                     state = "text";
                 } else {
@@ -79,6 +82,9 @@ function generate(inputData) {
     return outData;
 }
 
+module.exports.generate = generate;
+
+// Script
 let args = process.argv.slice(2);
 let inputFileName = args[0];
 let fs = require('fs');

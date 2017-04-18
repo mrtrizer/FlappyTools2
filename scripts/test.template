@@ -1,16 +1,11 @@
-test1
-test2
 <? if (test.first == 2) {?>
 test.first = [test.first]
-test3
-test4
 <?}?>
-test5
+separator
 <? if (test.first == 1) {?>
-test6
-test7
+test.first equal to 1
 <?}?>
-test8
+separator
 <?for(let i = 0; i < 10; i++) {?>
-test<!i!>
+test[i]
 <?}?>
