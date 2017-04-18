@@ -1,6 +1,7 @@
 test1
 test2
 <? if (test.first == 2) {?>
+test.first = [test.first]
 test3
 test4
 <?}?>

@@ -13,11 +13,14 @@ let scriptData = fs.readFileSync(scriptFileName, "utf8");
 
 let params = JSON.parse(configData);
 
+let outString = "";
+
 // Set method for output
-params.output = str => console.log(str);
+params.output = str => outString += str;
 
 console.log(JSON.stringify(params));
 
 let strictModeScript = "\"use strict\"\n" + scriptData;
 let context = vm.createContext(params);
 vm.runInContext(strictModeScript, context);
+console.log(outString);

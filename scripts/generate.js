@@ -1,59 +1,81 @@
 #!/usr/bin/node
+"use strict"
 
 //Script generates javascript code from template file
+
+function genTabs(tabN) {
+    let result = "";
+    while (tabN > 0) {
+        result += "    ";
+        tabN -= 1;
+    }
+    return result;
+}
 
 function generate(inputData) {
     let outData = "console.log(\"";
 
+    let lineStart = false;
+    let tabN = 0;
     let state = "text"
 
     for(var x = 0, c=''; c = inputData.charAt(x); x++){
         switch (state) {
             case "text":
                 if (c == "<")
-                    state = "<"
+                    state = "<";
                 else if (c == "\n")
-                    outData += "\\n\\\n\t";
-                else
+                    outData += "\\n\\\n" + genTabs(tabN) + "    ";
+                else if (c == "[") {
+                    state = "[";
+                    outData += "\");\n" + genTabs(tabN) + "output("
+                } else
                     outData += c;
                 break;
             case "<":
                 if (c == "?") {
                     outData += "\");\n"
-                    state = "js"
-                }
-                if (c == "!") {
-                    outData += "\" + ";
-                    state = "js_insert";
+                    state = "js_line_start"
                 }
                 break;
+            case "js_line_start":
+                if (c != " ") {
+                    state = "js";
+                } else {
+                    break;
+                }
             case "js":
-                if (c == "?")
+                if (c == "\n") {
+                    state = "js_line_start";
+                    outData += "\n";
+                } else if (c == "?")
                     state = "?";
-                else
+                else if (c == "{") {
+                    tabN++;
+                    outData += "{";
+                } else if (c == "}") {
+                    tabN--;
+                    outData += "}";
+                } else
                     outData += c;
                 break
             case "?":
                 if (c == ">") {
-                    outData += "\noutput(\"";
+                    outData += "\n" + genTabs(tabN) + "output(\"";
                     state = "text";
                 }
                 break;
-            case "js_insert":
-                if (c == "!")
-                    state = "!";
-                else
-                    outData += c;
-                break;
-            case "!":
-                if (c == ">") {
-                    outData += " + \"";
+            case "[":
+                if (c == "]") {
+                    outData += ");\n" + genTabs(tabN) + "output(\""
                     state = "text";
+                } else {
+                    outData += c;
                 }
                 break;
         }
     }
-    outData += "\")";
+    outData += "\");";
     return outData;
 }
 
