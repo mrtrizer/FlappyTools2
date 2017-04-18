@@ -1,5 +1,7 @@
 #!/usr/bin/node
 
+//Script generates javascript code from template file
+
 function generate(inputData) {
     let outData = "console.log(\"";
 

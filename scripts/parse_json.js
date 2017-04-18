@@ -1,23 +1,29 @@
 #!/usr/bin/node
+"use strict"
 
 let args = process.argv.slice(2);
-let outParamList = {};
+let outParams = {};
 
 args.forEach(function (val, index, array) {
     let fs = require('fs');
     let data = fs.readFileSync(val, 'utf8');
-    jsonObj = JSON.parse(data);
-    jsonIterate = function (jsonObj, path) {
-        for (key in jsonObj) {
+    let jsonObj = JSON.parse(data);
+    // recursive iterate json tree
+    let jsonIterate = function (jsonObj, outObject) {
+        for (let key in jsonObj) {
             let item = jsonObj[key];
-            if (typeof item == "object")
-                jsonIterate(item, path + key + ".");
-            else
-                outParamList[path + key] = item;
+            if (typeof item == "object") {
+                if (!outObject.hasOwnProperty(key))
+                    outObject[key] = {};
+                else if (typeof outObject[key] != "object")
+                    outObject[key] = {};
+                jsonIterate(item, outObject[key]);
+            } else {
+                outObject[key] = item;
+            }
         };
     };
-    jsonIterate(jsonObj, "");
+    jsonIterate(jsonObj, outParams);
 });
 
-for (key in outParamList)
-    console.log(key + ":" + JSON.stringify(outParamList[key]));
+console.log(JSON.stringify(outParams));

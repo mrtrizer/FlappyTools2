@@ -1,7 +1,8 @@
-console.log("test1\n\
+output("test1\n\
 	test2\n\
 	");
- if (test.first == 2) {
+
+ if (this.test.first == 2) {
 output("\n\
 	test3\n\
 	test4\n\
