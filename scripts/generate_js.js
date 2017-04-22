@@ -84,13 +84,15 @@ function generate(inputData) {
 
 module.exports.generate = generate;
 
-// Script
-let args = process.argv.slice(2);
-let inputFileName = args[0];
-let fs = require('fs');
-let inputData = fs.readFileSync(inputFileName, "utf8");
+// If run as script
+if (require.main == module) {
+    let args = process.argv.slice(2);
+    let inputFileName = args[0];
+    let fs = require('fs');
+    let inputData = fs.readFileSync(inputFileName, "utf8");
 
-let jsScript = generate(inputData);
+    let jsScript = generate(inputData);
 
-console.log(jsScript);
+    console.log(jsScript);
+}
 

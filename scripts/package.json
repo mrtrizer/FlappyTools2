@@ -1,0 +1,7 @@
+{
+    "name": "FlappyTools",
+    "version": "0.0.1",
+    "dependencies": {
+        "fs-path": "*"
+    }
+}

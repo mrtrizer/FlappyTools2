@@ -29,7 +29,9 @@ function parseJson(fileList) {
 
 module.exports.parseJson = parseJson;
 
-// Script
-let fileList = process.argv.slice(2);
+// If run as script
+if (require.main == module) {
+    let fileList = process.argv.slice(2);
 
-console.log(JSON.stringify(parseJson(fileList)));
+    console.log(JSON.stringify(parseJson(fileList)));
+}

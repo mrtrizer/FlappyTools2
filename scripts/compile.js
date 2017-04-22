@@ -1,10 +1,9 @@
 #!/usr/bin/node
 "use strict"
 
-const vm = require('vm');
 
 function compile(params, scriptData) {
-
+    const vm = require('vm');
     let outString = "";
 
     // Set method for output
@@ -17,14 +16,16 @@ function compile(params, scriptData) {
 
 module.exports.compile = compile;
 
-// Script
-let args = process.argv.slice(2);
-let configFileName = args[0];
-let scriptFileName = args[1];
+// If run as script
+if (require.main == module) {
+    let args = process.argv.slice(2);
+    let configFileName = args[0];
+    let scriptFileName = args[1];
 
-let fs = require('fs');
-let configData = fs.readFileSync(configFileName, "utf8");
-let scriptData = fs.readFileSync(scriptFileName, "utf8");
+    let fs = require('fs');
+    let configData = fs.readFileSync(configFileName, "utf8");
+    let scriptData = fs.readFileSync(scriptFileName, "utf8");
 
-let params = JSON.parse(configData);
-console.log(compile(params, scriptData));
+    let params = JSON.parse(configData);
+    console.log(compile(params, scriptData));
+}
