@@ -1,13 +1,10 @@
 #!/usr/bin/node
 "use strict"
 
-function compileFile(config, filePath, outPath) {
-    const fs = require("fs");
+function compileString(config, templateData) {
     const compile_js = require("./compile.js");
     const generate_js = require("./generate_js.js");
 
-    const templateData = fs.readFileSync(filePath, 'utf8');
-    console.log("In: " + filePath + " Out: " + outPath);
     const generationScript = generate_js.generate(templateData);
     console.log("Script: \n" + generationScript);
     const compiledData = compile_js.compile(config, generationScript);
@@ -15,8 +12,17 @@ function compileFile(config, filePath, outPath) {
     return compiledData;
 }
 
+function compileFile(config, filePath) {
+    const fs = require("fs");
+
+    const templateData = fs.readFileSync(filePath, 'utf8');
+    console.log("In: " + filePath);
+    return compileString(config, templateData);
+}
+
 function safeFile(path, data) {
     var fsPath = require('fs-path');
+    console.log("Out: " + path);
 
     fsPath.writeFile(path, data, function(err){
         if(err) {
@@ -32,7 +38,7 @@ function compileDir(config, templatePath, outPath) {
 
     if (!fs.lstatSync(templatePath).isDirectory()) {
         const data = compileFile(config, templatePath, outPath)
-        safeFile(outPath, data);
+        safeFile(compileString(config, outPath), data);
         return;
     }
     fs.readdirSync(templatePath).forEach(fileName => {
