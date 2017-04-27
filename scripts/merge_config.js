@@ -31,7 +31,14 @@ module.exports.parseJson = parseJson;
 
 // If run as script
 if (require.main == module) {
-    let fileList = process.argv.slice(2);
+    const opt = require('node-getopt').create([
+      ['h' , 'help', 'Display this help.'],
+    ])
+    .setHelp("Usage: node merge_config.js <config> ...\n\n[[OPTIONS]]")
+    .bindHelp()
+    .parseSystem();
+
+    let fileList = opt.argv;
 
     console.log(JSON.stringify(parseJson(fileList)));
 }

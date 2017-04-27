@@ -73,12 +73,17 @@ module.exports.generate = generate;
 
 // If run as script
 if (require.main == module) {
-    let args = process.argv.slice(2);
-    let inputFileName = args[0];
-    let fs = require('fs');
-    let inputData = fs.readFileSync(inputFileName, "utf8");
+    const opt = require('node-getopt').create([
+      ['t' , 'template-file=ARG'   , 'Template file.'],
+      ['h' , 'help', 'Display this help.'],
+    ])
+    .bindHelp()
+    .parseSystem();
 
-    let jsScript = generate(inputData);
+    const inputFileName = opt.options["template-file"];
+    const fs = require('fs');
+    const inputData = fs.readFileSync(inputFileName, "utf8");
+    const jsScript = generate(inputData);
 
     console.log(jsScript);
 }

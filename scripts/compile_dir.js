@@ -52,9 +52,18 @@ module.exports.compileDir = compileDir;
 
 // If run as script
 if (require.main == module) {
-    const configPath = process.argv[2];
-    const templatePath = process.argv[3];
-    const outPath = process.argv[4];
+    const opt = require('node-getopt').create([
+        ['o', 'output-dir=ARG', 'Output dir.'],
+        ['c', 'config=ARG', 'Config.'],
+        ['t', 'template-dir=ARG', 'Template dir. Should contain generator.js.'],
+        ['h', 'help', 'Display this help.'],
+    ])
+    .bindHelp()
+    .parseSystem();
+
+    const configPath = opt.options["config"];
+    const templatePath = opt.options["template-dir"];
+    const outPath = opt.options["output-dir"]
     const fs = require("fs");
     const configData = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData);

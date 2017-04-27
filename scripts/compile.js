@@ -18,9 +18,16 @@ module.exports.compile = compile;
 
 // If run as script
 if (require.main == module) {
-    let args = process.argv.slice(2);
-    let configFileName = args[0];
-    let scriptFileName = args[1];
+    const opt = require('node-getopt').create([
+      ['c' , 'config=ARG'   , 'Config.'],
+      ['s' , 'script=ARG'   , 'Script.'],
+      ['h' , 'help', 'Display this help.'],
+    ])
+    .bindHelp()
+    .parseSystem();
+
+    let configFileName = opt.options["config"];
+    let scriptFileName = opt.options["script"];
 
     let fs = require('fs');
     let configData = fs.readFileSync(configFileName, "utf8");

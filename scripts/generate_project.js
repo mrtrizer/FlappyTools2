@@ -40,13 +40,13 @@ module.exports.generateProject = generateProject;
 // If run as script
 if (require.main == module) {
     const opt = require('node-getopt').create([
-      ['o' , 'output-dir=ARG'  , 'Output dir.'],
-      ['t' , 'template-dir=ARG'   , 'Template dir. Should contain generator.js.'],
-      ['c' , 'config=ARG+' , 'Configuration.'],
-      ['h' , 'help', 'Display this help.'],
-    ])              // create Getopt instance
-    .bindHelp()     // bind option 'help' to default action
-    .parseSystem(); // parse command line
+        ['o', 'output-dir=ARG', 'Output dir.'],
+        ['t', 'template-dir=ARG', 'Template dir. Should contain generator.js.'],
+        ['c', 'config=ARG+', 'Configuration.'],
+        ['h', 'help', 'Display this help.'],
+    ])
+    .bindHelp()
+    .parseSystem();
 
     const workingDir = process.cwd();
     const templatePath = opt.options["template-dir"];
