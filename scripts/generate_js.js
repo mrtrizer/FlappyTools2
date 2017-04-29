@@ -5,7 +5,7 @@
 
 function generate(inputData) {
     let outData = "\"use strict\"\n" ;
-    outData += "output(\"";
+    outData += "print(\"";
 
     let lineStart = false;
     let state = "text";
@@ -31,7 +31,7 @@ function generate(inputData) {
                     state = "js"
                 } else if (c == inlineMarker) {
                     state = "inline";
-                    outData += "\");\n output("
+                    outData += "\");\n print("
                 } else {
                     state = "text";
                     outData += c;
@@ -46,7 +46,7 @@ function generate(inputData) {
                 break
             case "block_end_marker":
                 if (c == bracketClose) {
-                    outData += "\n output(\"";
+                    outData += "\n print(\"";
                     state = "text";
                 } else {
                     outData += codeBlockMarker;
@@ -57,7 +57,7 @@ function generate(inputData) {
                 if (c == "\n")
                     ;// skip
                 else if (c == bracketClose) {
-                    outData += ");\n output(\""
+                    outData += ");\n print(\""
                     state = "text";
                 } else {
                     outData += c;

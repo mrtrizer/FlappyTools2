@@ -1,3 +1,12 @@
 cmake_minimum_required (VERSION 2.6)
-project (Test)
-add_executable(Test main.cpp)
+
+set(CMAKE_BUILD_TYPE Debug)
+
+add_definitions(-std=c++1y)
+
+include_directories(
+
+);
+
+project (TestProject)
+add_executable(TestProject /home/mrtrizer/Projects/flappy_tools/scripts/src/main.cpp)

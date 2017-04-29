@@ -14,6 +14,16 @@ function findProjectRoot(workingDir) {
     return workingDir;
 }
 
+function normalize(path, projectRoot) {
+    const utils = require("./utils.js");
+    if (path.indexOf("^/") != -1) {
+        path = path.replace("^/","");
+        return utils.absolutePath(projectRoot, path);
+    } else {
+        return utils.absolutePath(process.cwd, path);
+    }
+}
+
 function run(templatePath, context) {
     const generator = require(path.join(templatePath, "generator.js"));
     generator.generate(context);
@@ -22,15 +32,16 @@ function run(templatePath, context) {
 function generateProject(workingDir, templatePath, outDir, configOrder) {
     const compile_dir = require("./compile_dir.js");
 
-    const projectDir = findProjectRoot(workingDir);
-    const config = mergeConfig(projectDir, configOrder);
+    const projectRoot = findProjectRoot(workingDir);
+    const config = mergeConfig(projectRoot, configOrder);
     const context = {
-        "projectDir": projectDir,
+        "projectRoot": projectRoot,
         "config": config,
         "compileDir": compile_dir.compileDir,
         "templatePath": templatePath,
         "mergeConfig": mergeConfig,
-        "outDir": outDir
+        "outDir": outDir,
+        "normalize": path => normalize(path, projectRoot)
     }
     run(templatePath, context)
 }
@@ -48,10 +59,12 @@ if (require.main == module) {
     .bindHelp()
     .parseSystem();
 
+    const utils = require("./utils.js");
+
     const workingDir = process.cwd();
-    const templatePath = opt.options["template-dir"];
-    const outDir = opt.options["output-dir"];
-    const configOrder = opt.options["config"];
+    const templatePath = utils.absolutePath(workingDir, opt.options["template-dir"]);
+    const outDir = utils.absolutePath(workingDir, opt.options["output-dir"]);
+    const configOrder = utils.absolutePath(workingDir, opt.options["config"]);
     generateProject(workingDir, templatePath, outDir, configOrder);
 }
 

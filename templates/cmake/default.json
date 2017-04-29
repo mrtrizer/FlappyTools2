@@ -1,3 +1,7 @@
 {
-    "name": "NoName"
+    "name": "NoName",
+    "flags": ["-std=c++1y"],
+    "cxx": {
+        "include": []
+    }
 }

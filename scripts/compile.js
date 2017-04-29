@@ -1,13 +1,12 @@
 #!/usr/bin/node
 "use strict"
 
-
 function compile(params, scriptData) {
     const vm = require('vm');
     let outString = "";
 
     // Set method for output
-    params.output = str => outString += str;
+    params.print = str => outString += str;
 
     let context = vm.createContext(params);
     vm.runInContext(scriptData, context);
