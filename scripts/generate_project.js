@@ -10,10 +10,6 @@ function mergeConfig(projectDir, configOrder) {
     return config;
 }
 
-function findProjectRoot(workingDir) {
-    return workingDir;
-}
-
 function normalize(path, projectRoot) {
     const utils = require("./utils.js");
     if (path.indexOf("^/") != -1) {
@@ -29,10 +25,10 @@ function run(templatePath, context) {
     generator.generate(context);
 }
 
-function generateProject(workingDir, templatePath, outDir, configOrder) {
+function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot) {
     const compile_dir = require("./compile_dir.js");
-
-    const projectRoot = findProjectRoot(workingDir);
+    if (projectRoot == null)
+        projectRoot = workingDir;
     const config = mergeConfig(projectRoot, configOrder);
     const context = {
         "projectRoot": projectRoot,
@@ -54,6 +50,7 @@ if (require.main == module) {
         ['o', 'output-dir=ARG', 'Output dir.'],
         ['t', 'template-dir=ARG', 'Template dir. Should contain generator.js.'],
         ['c', 'config=ARG+', 'Configuration.'],
+        ['p', 'project-root=ARG', 'Project root. If not set, root dir will be used as root.']
         ['h', 'help', 'Display this help.'],
     ])
     .bindHelp()
@@ -65,6 +62,9 @@ if (require.main == module) {
     const templatePath = utils.absolutePath(workingDir, opt.options["template-dir"]);
     const outDir = utils.absolutePath(workingDir, opt.options["output-dir"]);
     const configOrder = utils.absolutePath(workingDir, opt.options["config"]);
-    generateProject(workingDir, templatePath, outDir, configOrder);
+    const projectRoot = null;
+    if (opt.options.hasOwnProperty("project-root"))
+        projectRoot = utils.absolutePath(workingDir, opt.options["project-root"]);
+    generateProject(workingDir, templatePath, outDir, configOrder, projectRoot);
 }
 

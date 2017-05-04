@@ -2,5 +2,10 @@
     "name":"TestProject",
     "modules":[
         "FlappyEngine.Core"
-    ]
+    ],
+    "cxx": {
+        "includes":[
+            "test/test"
+        ]
+    }
 }

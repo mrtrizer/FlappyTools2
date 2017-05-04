@@ -8,7 +8,7 @@ include_directories(
 [% for (let i in config.cxx.includes) { %]
 [%    print("\"" + config.cxx.includes[i] + "\""); %]
 [% } %]
-);
+)
 
 project ([=config.name])
 
