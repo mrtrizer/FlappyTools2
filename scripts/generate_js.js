@@ -21,6 +21,8 @@ function generate(inputData) {
                     state = "bracket_open";
                 } else if (c == "\n") {
                     outData += "\\n\" + \n        \"";
+                } else if (c == "\"") {
+                    outData += "\\\""
                 } else {
                     outData += c;
                 }
@@ -31,7 +33,7 @@ function generate(inputData) {
                     state = "js"
                 } else if (c == inlineMarker) {
                     state = "inline";
-                    outData += "\");\n print("
+                    outData += "\" + ("
                 } else {
                     state = "text";
                     outData += c;
@@ -50,15 +52,25 @@ function generate(inputData) {
                     state = "text";
                 } else {
                     outData += codeBlockMarker;
-                    state = "js"
+                    outData += c;
+                    state = "js";
+                }
+                break;
+            case "inline_end_marker":
+                if (c == bracketClose) {
+                    outData += ") + \"";
+                    state = "text";
+                } else {
+                    outData += inlineMarker;
+                    outData += c;
+                    state = "inline";
                 }
                 break;
             case "inline":
                 if (c == "\n")
                     ;// skip
-                else if (c == bracketClose) {
-                    outData += ");\n print(\""
-                    state = "text";
+                else if (c == inlineMarker) {
+                    state = "inline_end_marker";
                 } else {
                     outData += c;
                 }

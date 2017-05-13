@@ -6,7 +6,7 @@ add_definitions(-std=c++1y)
 
 include_directories(
 
-"test/test"
+    "test/test"
 
 )
 

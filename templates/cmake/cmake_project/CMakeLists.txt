@@ -2,14 +2,14 @@ cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_definitions([=config.flags.join(" ")])
+add_definitions([= config.flags.join(" ") =])
 
 include_directories(
 [% for (let i in config.cxx.includes) { %]
-[%    print("\"" + config.cxx.includes[i] + "\""); %]
+    "[= config.cxx.includes[i] =]"
 [% } %]
 )
 
-project ([=config.name])
+project ([= config.name =])
 
-add_executable([=config.name] [=normalize("^/src/main.cpp")])
+add_executable([= config.name =] [= normalize("^/src/main.cpp") =])
