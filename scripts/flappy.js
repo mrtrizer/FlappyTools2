@@ -2,18 +2,24 @@
 "use strict"
 
 const childProcess = require("child_process");
+const path = require("path");
+const scriptPath = path.dirname(require.main.filename);
+const flappyGenPath = path.join(scriptPath, "flappy_gen.js");
+const flappyInitPath = path.join(scriptPath, "flappy_gen.js");
 
 function gen(argv) {
-    console.log(argv);
-    childProcess.execFile("flappy_gen.js", argv, (error, stdout, stderr) => {
+    childProcess.execFile(flappyGenPath, argv, (error, stdout, stderr) => {
+        if (error != null)
+            throw error;
         console.log(stdout);
         console.log(stderr);
     });
 }
 
 function init(argv) {
-    console.log(argv);
-    childProcess.execFile("flappy_gen.js", argv, (error, stdout, stderr) => {
+    childProcess.execFile(flappyInitPath, argv, (error, stdout, stderr) => {
+        if (error != null)
+            throw error;
         console.log(stdout);
         console.log(stderr);
     });
@@ -21,11 +27,7 @@ function init(argv) {
 
 // If run as script
 if (require.main == module) {
-    const opt = require('node-getopt').create([
-        ['o', 'output-dir=ARG', 'Output dir.'],
-        ['h', 'help', 'Display this help.'],
-    ])
-    .bindHelp()
+    const opt = require('node-getopt').create([])
     .parseSystem();
 
     switch (opt.argv[0]) {
