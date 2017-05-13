@@ -1,19 +1,35 @@
 #!/usr/bin/node
 "use strict"
 
-function flappyInit() {
+function flappyInit(workingDir, templateName, projectName) {
+    const flappyGen = require("./flappy_gen.js");
+    const path = require("path");
 
+    const outDir = path.join(workingDir, projectName)
+    const extraConfig = {"projectName": projectName};
+
+    flappyGen.flappyGenerate(workingDir, workingDir, templateName, outDir, extraConfig);
 }
 
 // If run as script
 if (require.main == module) {
     const opt = require('node-getopt').create([
-        ['o', 'output-dir=ARG', 'Output dir.'],
-        ['c', 'config=ARG', 'Config.'],
-        ['t', 'template-dir=ARG', 'Template dir. Should contain generator.js.'],
         ['h', 'help', 'Display this help.'],
     ])
     .bindHelp()
     .parseSystem();
 
+    const path = require("path");
+
+    if (opt.argv.length < 2) {
+        console.log("flappy init <template> <out dir>");
+        return;
+    }
+
+    const templateName = opt.argv[0];
+    const projectName = opt.argv[1];
+
+    const workingDir = process.cwd();
+
+    flappyInit(workingDir, templateName, projectName);
 }

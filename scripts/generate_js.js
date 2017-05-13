@@ -15,17 +15,21 @@ function generate(inputData) {
     const codeBlockMarker = "%";
 
     for(var x = 0, c=''; c = inputData.charAt(x); x++){
+        const procSymbol = function (c) {
+            if (c == bracketOpen) {
+                state = "bracket_open";
+            } else if (c == "\n") {
+                outData += "\\n\" + \n        \"";
+            } else if (c == "\"") {
+                outData += "\\\""
+            } else {
+                outData += c;
+            }
+        }
+
         switch (state) {
             case "text":
-                if (c == bracketOpen) {
-                    state = "bracket_open";
-                } else if (c == "\n") {
-                    outData += "\\n\" + \n        \"";
-                } else if (c == "\"") {
-                    outData += "\\\""
-                } else {
-                    outData += c;
-                }
+                procSymbol(c);
                 break;
             case "bracket_open":
                 if (c == codeBlockMarker) {
@@ -36,7 +40,8 @@ function generate(inputData) {
                     outData += "\" + ("
                 } else {
                     state = "text";
-                    outData += c;
+                    outData += bracketOpen;
+                    procSymbol(c);
                 }
                 break;
             case "js":
@@ -52,7 +57,7 @@ function generate(inputData) {
                     state = "text";
                 } else {
                     outData += codeBlockMarker;
-                    outData += c;
+                    procSymbol(c);
                     state = "js";
                 }
                 break;
@@ -62,7 +67,7 @@ function generate(inputData) {
                     state = "text";
                 } else {
                     outData += inlineMarker;
-                    outData += c;
+                    procSymbol(c);
                     state = "inline";
                 }
                 break;

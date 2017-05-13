@@ -18,8 +18,20 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function flappyGenerate(workingDir, templatePath, outDir, configOrder, projectRoot) {
+function flappyGenerate(workingDir, projectRoot, templateName, forceOutDir, extraConfig) {
+    const utils = require("./utils.js");
+
     const generate_project = require("./generate_project.js");
+
+    const flappyConfig = getFlappyConfig();
+
+    const templatePath = findTemplate(flappyConfig, projectRoot, templateName)
+
+    const defaultConfig = utils.absolutePath(templatePath, "default.json"); // template default config
+    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
+    const configOrder = [defaultConfig, generalConfig, extraConfig || {}];
+
+    const outDir = forceOutDir || utils.absolutePath(projectRoot, "generated/" + templateName);
 
     generate_project.generateProject(workingDir, templatePath, outDir, configOrder, projectRoot);
 }
@@ -64,22 +76,17 @@ if (require.main == module) {
     .bindHelp()
     .parseSystem();
 
-    const utils = require("./utils.js");
-
-    const flappyConfig = getFlappyConfig();
+    if (opt.argv.length < 1) {
+        console.log("flappy gen <template>");
+        return;
+    }
 
     const workingDir = process.cwd();
     const projectRoot = findProjectRoot(workingDir);
 
+    const forceOutDir = opt.options["output-dir"];
     const templateName = opt.argv[0];
-    const templatePath = findTemplate(flappyConfig, projectRoot, templateName)
 
-    const outDir = utils.absolutePath(projectRoot, "generated/" + templateName);
-
-    const defaultConfig = utils.absolutePath(templatePath, "default.json"); // template default config
-    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
-    const configOrder = [defaultConfig, generalConfig];
-
-    flappyGenerate(workingDir, templatePath, outDir, configOrder, projectRoot);
+    flappyGenerate(workingDir, projectRoot, templateName, forceOutDir);
 }
 

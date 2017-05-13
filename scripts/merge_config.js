@@ -24,8 +24,20 @@ function parseJson(fileList) {
 
     let outParams = {};
     fileList.forEach(function (val, index, array) {
-        let data = fs.readFileSync(val, 'utf8');
-        let jsonObj = JSON.parse(data);
+        let jsonObj = {};
+        console.log("Config: " + val);
+        if (typeof val == "string") {
+            try {
+                let data = fs.readFileSync(val, 'utf8');
+                jsonObj = JSON.parse(data);
+            } catch (e) {
+                return;
+            }
+        } else if (typeof val == "object") {
+            jsonObj = val;
+        } else {
+            throw new Error("Wrong type of config. Should be string path or object.");
+        }
         // recursive iterate json tree
         jsonIterate(jsonObj, outParams);
     });

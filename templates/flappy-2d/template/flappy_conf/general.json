@@ -1,0 +1,6 @@
+{
+    "name":"[= config.projectName =]",
+    "modules":[
+        "FlappyEngine.Core"
+    ]
+}

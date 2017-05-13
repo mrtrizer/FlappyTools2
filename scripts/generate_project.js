@@ -3,7 +3,7 @@
 
 const path = require("path");
 
-function mergeConfig(projectDir, configOrder) {
+function mergeConfig(configOrder) {
     const merge_config = require("./merge_config.js")
     const config =  merge_config.parseJson(configOrder);
     console.log(config);
@@ -29,7 +29,7 @@ function generateProject(workingDir, templatePath, outDir, configOrder, projectR
     const compile_dir = require("./compile_dir.js");
     if (projectRoot == null)
         projectRoot = workingDir;
-    const config = mergeConfig(projectRoot, configOrder);
+    const config = mergeConfig(configOrder);
     const context = {
         "projectRoot": projectRoot,
         "config": config,
