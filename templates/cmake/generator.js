@@ -12,9 +12,9 @@ module.exports.generate = function(context) {
     for (let i in context.modules) {
         const module = context.modules[i];
 
-        const moduleTemplateDir = path.join(context.templatePath, "cmake_module");
         const moduleOutDir = path.join(context.outDir, "/modules/", module.name);
-        const moduleContext = context.createSubContext(module.path, moduleTemplateDir, moduleOutDir);
+        const moduleContext = context.createSubContext(module.path, "default_submodule.json", moduleOutDir);
+        const moduleTemplateDir = path.join(context.templatePath, "cmake_module");
         context.compileDir(moduleContext, moduleTemplateDir, moduleOutDir);
     }
 }

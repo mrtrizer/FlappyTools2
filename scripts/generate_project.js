@@ -3,13 +3,15 @@
 
 const path = require("path");
 
-function mergeConfig(projectRoot, templatePath, configOrder, extraParams) {
+function mergeConfig(projectRoot, templatePath, defaultConfigFileName, configOrder, extraParams) {
     const utils = require("./utils.js");
 
-    const defaultConfig = utils.absolutePath(templatePath, "default.json"); // template default config
+    const defaultConfig = utils.absolutePath(templatePath, defaultConfigFileName); // template default config
     const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
 
     let fullConfigOrder = [defaultConfig, generalConfig];
+
+    console.log(configOrder);
 
     for (let i in configOrder) {
         const config = configOrder[i];
@@ -43,20 +45,27 @@ function run(templatePath, context) {
     generator.generate(context);
 }
 
-function createContext(templatePath, outDir, projectRoot, configOrder, extraParams) {
+function createContext(templatePath, outDir, projectRoot, defaultConfigFileName, configOrder, extraParams) {
     const compile_dir = require("./compile_dir.js");
 
-    const config = mergeConfig(projectRoot, templatePath, configOrder, extraParams);
+    const createSubContext = function(subprojectRoot, defaultConfigFileName, outDir) {
+        return createContext(templatePath,
+            outDir,
+            subprojectRoot,
+            defaultConfigFileName,
+            configOrder,
+            extraParams);
+    }
+
+    const config = mergeConfig(projectRoot, templatePath, defaultConfigFileName, configOrder, extraParams);
     const context = {
         "projectRoot": projectRoot,
         "config": config,
         "compileDir": compile_dir.compileDir,
         "templatePath": templatePath,
-        "mergeConfig": configOrder => mergeConfig(projectRoot, templatePath, configOrder, extraParams),
         "modules": findModules(projectRoot, config),
         "outDir": outDir,
-        "createSubContext": (subprojectRoot, templatePath, outDir) =>
-                                createContext(templatePath, outDir, subprojectRoot, configOrder, extraParams),
+        "createSubContext": createSubContext,
         "normalize": path => normalize(path, projectRoot)
     }
     return context;
@@ -65,7 +74,7 @@ function createContext(templatePath, outDir, projectRoot, configOrder, extraPara
 function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams) {
     if (projectRoot == null)
         projectRoot = workingDir;
-    const context = createContext(templatePath, outDir, projectRoot, configOrder, extraParams);
+    const context = createContext(templatePath, outDir, projectRoot, "default.json", configOrder, extraParams);
     run(templatePath, context)
 }
 

@@ -29,6 +29,7 @@ function parseJson(fileList, extraParams) {
             // recursive iterate json tree
             jsonIterate(jsonObj, outParams);
         } catch (e) {
+            console.log("ERROR: Can't read config " + val);
             return;
         }
     });
