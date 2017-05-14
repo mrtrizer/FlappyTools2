@@ -37,7 +37,16 @@ function normalize(path, projectRoot) {
 
 function findModules(projectRoot, config) {
     const utils = require("./utils.js");
-    return [{"name":"FlappyEngine", "path":utils.absolutePath(projectRoot, "modules/FlappyEngine")}];
+    const path = require("path");
+
+    let modules = [];
+    for (let i in config.modules) {
+        const module = config.modules[i];
+        const relativePath = path.join("modules", module.name);
+        const absolutePath = utils.absolutePath(projectRoot, relativePath);
+        modules.push({"name":"FlappyEngine", "path":absolutePath});
+    }
+    return modules;
 }
 
 function run(templatePath, context) {

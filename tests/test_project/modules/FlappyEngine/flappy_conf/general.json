@@ -1,8 +1,6 @@
 {
     "name":"TestProject",
-    "modules":[
-        "FlappyEngine.Core"
-    ],
+    "modules":[],
     "cxx": {
         "includes":[
             "test/test"

@@ -1,7 +1,11 @@
 {
     "name":"TestProject",
     "modules":[
-        "FlappyEngine.Core"
+        {
+            "name":"FlappyEngine",
+            "git.https":"https://github.com/mrtrizer/FlappyEngine.git",
+            "git.branch":"tree_refactoring"
+        }
     ],
     "cxx": {
         "includes":[
