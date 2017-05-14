@@ -4,13 +4,18 @@
 module.exports.generate = function(context) {
     const path = require("path");
 
-    context.compileDir(context, path.join(context.templatePath, "cmake_project"), context.outDir);
-    // for (let i in context.modules) {
-    //     let module = context.modules[i];
-    //     let moduleConfig = context.mergeConfig(context.configOrder);
-    //     let moduleOutDir = path.join(context.outDir, "/modules/", module.name);
-    //     let moduleTemplateDir = path.join(context.templatePath, "cmake_module");
-    //     context.compileDir(moduleConfig, moduleTemplateDir, moduleOutDir);
-    // }
+    const templateDir = path.join(context.templatePath, "cmake_project");
+    console.log(templateDir);
+    context.compileDir(context, templateDir, context.outDir);
+
+    // Generate subprojects
+    for (let i in context.modules) {
+        const module = context.modules[i];
+
+        const moduleTemplateDir = path.join(context.templatePath, "cmake_module");
+        const moduleOutDir = path.join(context.outDir, "/modules/", module.name);
+        const moduleContext = context.createSubContext(module.path, moduleTemplateDir, moduleOutDir);
+        context.compileDir(moduleContext, moduleTemplateDir, moduleOutDir);
+    }
 }
 

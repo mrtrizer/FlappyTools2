@@ -9,7 +9,7 @@ include_directories(
 )
 
 [% for (let i in config.cxx.source_dirs ) { %]
-    file(APPEND SOURCES [= config.cxx.source_dirs[i] =]*.cpp)
+    file(APPEND SOURCES [= config.cxx.source[i] =]*.cpp)
 [% } %]
 
 add_definitions("-std=c++1y")

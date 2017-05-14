@@ -14,11 +14,7 @@ function mergeConfig(projectRoot, templatePath, configOrder, extraParams) {
     for (let i in configOrder) {
         const config = configOrder[i];
 
-        if (typeof config == "string" ) {
-            fullConfigOrder.push(utils.absolutePath(projectRoot, "flappy_conf", configName));
-        } else {
-            fullConfigOrder.push(config);
-        }
+        fullConfigOrder.push(utils.absolutePath(projectRoot, "flappy_conf", config));
     }
 
     const merge_config = require("./merge_config.js")
@@ -47,10 +43,9 @@ function run(templatePath, context) {
     generator.generate(context);
 }
 
-function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams) {
+function createContext(templatePath, outDir, projectRoot, configOrder, extraParams) {
     const compile_dir = require("./compile_dir.js");
-    if (projectRoot == null)
-        projectRoot = workingDir;
+
     const config = mergeConfig(projectRoot, templatePath, configOrder, extraParams);
     const context = {
         "projectRoot": projectRoot,
@@ -60,8 +55,17 @@ function generateProject(workingDir, templatePath, outDir, configOrder, projectR
         "mergeConfig": configOrder => mergeConfig(projectRoot, templatePath, configOrder, extraParams),
         "modules": findModules(projectRoot, config),
         "outDir": outDir,
+        "createSubContext": (subprojectRoot, templatePath, outDir) =>
+                                createContext(templatePath, outDir, subprojectRoot, configOrder, extraParams),
         "normalize": path => normalize(path, projectRoot)
     }
+    return context;
+}
+
+function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams) {
+    if (projectRoot == null)
+        projectRoot = workingDir;
+    const context = createContext(templatePath, outDir, projectRoot, configOrder, extraParams);
     run(templatePath, context)
 }
 
