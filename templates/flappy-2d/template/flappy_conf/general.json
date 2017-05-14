@@ -1,6 +1,6 @@
 {
     "name":"[= config.projectName =]",
     "modules":[
-        "FlappyEngine.Core"
+        {"git.https":"https://github.com/mrtrizer/FlappyEngine.git", "git.branch":"tree_refactoring"}
     ]
 }

@@ -3,9 +3,26 @@
 
 const path = require("path");
 
-function mergeConfig(configOrder) {
+function mergeConfig(projectRoot, templatePath, configOrder, extraParams) {
+    const utils = require("./utils.js");
+
+    const defaultConfig = utils.absolutePath(templatePath, "default.json"); // template default config
+    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
+
+    let fullConfigOrder = [defaultConfig, generalConfig];
+
+    for (let i in configOrder) {
+        const config = configOrder[i];
+
+        if (typeof config == "string" ) {
+            fullConfigOrder.push(utils.absolutePath(projectRoot, "flappy_conf", configName));
+        } else {
+            fullConfigOrder.push(config);
+        }
+    }
+
     const merge_config = require("./merge_config.js")
-    const config =  merge_config.parseJson(configOrder);
+    const config =  merge_config.parseJson(fullConfigOrder, extraParams);
     console.log(config);
     return config;
 }
@@ -20,22 +37,28 @@ function normalize(path, projectRoot) {
     }
 }
 
+function findModules(projectRoot, config) {
+    const utils = require("./utils.js");
+    return [{"name":"FlappyEngine", "path":utils.absolutePath(projectRoot, "modules/FlappyEngine")}];
+}
+
 function run(templatePath, context) {
     const generator = require(path.join(templatePath, "generator.js"));
     generator.generate(context);
 }
 
-function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot) {
+function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams) {
     const compile_dir = require("./compile_dir.js");
     if (projectRoot == null)
         projectRoot = workingDir;
-    const config = mergeConfig(configOrder);
+    const config = mergeConfig(projectRoot, templatePath, configOrder, extraParams);
     const context = {
         "projectRoot": projectRoot,
         "config": config,
         "compileDir": compile_dir.compileDir,
         "templatePath": templatePath,
-        "mergeConfig": mergeConfig,
+        "mergeConfig": configOrder => mergeConfig(projectRoot, templatePath, configOrder, extraParams),
+        "modules": findModules(projectRoot, config),
         "outDir": outDir,
         "normalize": path => normalize(path, projectRoot)
     }

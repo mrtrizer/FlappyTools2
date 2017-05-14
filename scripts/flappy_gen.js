@@ -18,7 +18,7 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function flappyGenerate(workingDir, projectRoot, templateName, forceOutDir, extraConfig) {
+function flappyGenerate(workingDir, projectRoot, templateName, forceOutDir, configOrder, extraParams) {
     const utils = require("./utils.js");
 
     const generate_project = require("./generate_project.js");
@@ -27,13 +27,10 @@ function flappyGenerate(workingDir, projectRoot, templateName, forceOutDir, extr
 
     const templatePath = findTemplate(flappyConfig, projectRoot, templateName)
 
-    const defaultConfig = utils.absolutePath(templatePath, "default.json"); // template default config
-    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
-    const configOrder = [defaultConfig, generalConfig, extraConfig || {}];
-
     const outDir = forceOutDir || utils.absolutePath(projectRoot, "generated/" + templateName);
 
-    generate_project.generateProject(workingDir, templatePath, outDir, configOrder, projectRoot);
+
+    generate_project.generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams);
 }
 
 function findTemplate(flappyConfig, projectRoot, name) {
@@ -87,6 +84,8 @@ if (require.main == module) {
     const forceOutDir = opt.options["output-dir"];
     const templateName = opt.argv[0];
 
-    flappyGenerate(workingDir, projectRoot, templateName, forceOutDir);
+    const configOrder = opt.argv.slice(1);
+
+    flappyGenerate(workingDir, projectRoot, templateName, forceOutDir, configOrder);
 }
 

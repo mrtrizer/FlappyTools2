@@ -18,29 +18,22 @@ function jsonIterate (jsonObj, outObject) {
     };
 };
 
-
-function parseJson(fileList) {
+function parseJson(fileList, extraParams) {
     let fs = require('fs');
 
     let outParams = {};
     fileList.forEach(function (val, index, array) {
-        let jsonObj = {};
-        console.log("Config: " + val);
-        if (typeof val == "string") {
-            try {
-                let data = fs.readFileSync(val, 'utf8');
-                jsonObj = JSON.parse(data);
-            } catch (e) {
-                return;
-            }
-        } else if (typeof val == "object") {
-            jsonObj = val;
-        } else {
-            throw new Error("Wrong type of config. Should be string path or object.");
+        try {
+            const data = fs.readFileSync(val, 'utf8');
+            const jsonObj = JSON.parse(data);
+            // recursive iterate json tree
+            jsonIterate(jsonObj, outParams);
+        } catch (e) {
+            return;
         }
-        // recursive iterate json tree
-        jsonIterate(jsonObj, outParams);
     });
+    if (extraParams != undefined)
+        jsonIterate(extraParams, outParams);
     return outParams;
 }
 

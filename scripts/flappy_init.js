@@ -6,9 +6,9 @@ function flappyInit(workingDir, templateName, projectName) {
     const path = require("path");
 
     const outDir = path.join(workingDir, projectName)
-    const extraConfig = {"projectName": projectName};
+    const extraParams = {"projectName": projectName};
 
-    flappyGen.flappyGenerate(workingDir, workingDir, templateName, outDir, extraConfig);
+    flappyGen.flappyGenerate(workingDir, workingDir, templateName, outDir, [], extraParams);
 }
 
 // If run as script
