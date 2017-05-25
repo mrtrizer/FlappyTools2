@@ -1,5 +1,6 @@
 "use strict"
 
+// Converts relative pathes to absolute normalized pathes
 function absolutePath (basePath, pathList) {
     if (Array.isArray(pathList)) {
         let outPathList = [];
