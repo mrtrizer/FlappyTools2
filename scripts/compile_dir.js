@@ -8,7 +8,6 @@ function compileString(config, templateData) {
     const generationScript = generate_js.generate(templateData);
     console.log("Script: \n" + generationScript);
     const compiledData = compile_js.compile(config, generationScript);
-    console.log("Compiled file: \n" + compiledData);
     return compiledData;
 }
 

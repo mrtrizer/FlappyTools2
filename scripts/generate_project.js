@@ -27,12 +27,7 @@ function mergeConfig(projectRoot, templatePath, defaultConfigFileName, configOrd
 
 function normalize(path, projectRoot) {
     const utils = require("./utils.js");
-    if (path.indexOf("^/") != -1) {
-        path = path.replace("^/","");
-        return utils.absolutePath(projectRoot, path);
-    } else {
-        return utils.absolutePath(process.cwd, path);
-    }
+    return utils.absolutePath(projectRoot, path);
 }
 
 function findModules(projectRoot, config) {
