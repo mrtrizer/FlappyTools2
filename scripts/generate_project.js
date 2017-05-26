@@ -30,16 +30,16 @@ function normalize(path, projectRoot) {
     return utils.absolutePath(projectRoot, path);
 }
 
-function findModules(projectRoot, config) {
+function findModules(projectRoot, outDir, config) {
     const utils = require("./utils.js");
     const path = require("path");
 
     let modules = [];
     for (let i in config.modules) {
         const module = config.modules[i];
-        const relativePath = path.join("modules", module.name);
-        const absolutePath = utils.absolutePath(projectRoot, relativePath);
-        modules.push({"name":"FlappyEngine", "path":absolutePath});
+        const absolutePath = utils.absolutePath(projectRoot, module.path);
+        const outDir = path.join("modules", module.name);
+        modules.push({"name":module.name, "path":absolutePath, "outDir": outDir});
     }
     return modules;
 }
@@ -67,7 +67,7 @@ function createContext(templatePath, outDir, projectRoot, defaultConfigFileName,
         "config": config,
         "compileDir": compile_dir.compileDir,
         "templatePath": templatePath,
-        "modules": findModules(projectRoot, config),
+        "modules": findModules(projectRoot, outDir, config),
         "outDir": outDir,
         "createSubContext": createSubContext,
         "normalize": path => normalize(path, projectRoot)

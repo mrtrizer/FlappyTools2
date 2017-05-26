@@ -16,6 +16,10 @@ include_directories(
     list(APPEND SOURCES "[= normalizedSources[i] =]")
 [% } %]
 
+[% for (let i in modules) { %]
+    add_subdirectory([= modules[i].outDir =])
+[% } %]
+
 project ([= config.name =])
 
 add_executable([= config.name =] ${SOURCES})

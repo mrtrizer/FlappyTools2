@@ -30,6 +30,7 @@ function parseJson(fileList, extraParams) {
             jsonIterate(jsonObj, outParams);
         } catch (e) {
             console.log("ERROR: Can't read config " + val);
+            console.log(e.message);
             return;
         }
     });
