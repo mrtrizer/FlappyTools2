@@ -1,15 +1,15 @@
 #!/usr/bin/node
 "use strict"
 
-function compile(params, scriptData) {
+function compile(context, scriptData) {
     const vm = require('vm');
     let outString = "";
 
     // Set method for output
-    params.print = str => outString += str;
+    context.print = str => outString += str;
 
-    let context = vm.createContext(params);
-    vm.runInContext(scriptData, context);
+    let vmContext = vm.createContext(context);
+    vm.runInContext(scriptData, vmContext);
     return outString;
 }
 
@@ -32,6 +32,6 @@ if (require.main == module) {
     let configData = fs.readFileSync(configFileName, "utf8");
     let scriptData = fs.readFileSync(scriptFileName, "utf8");
 
-    let params = JSON.parse(configData);
-    console.log(compile(params, scriptData));
+    let context = JSON.parse(configData);
+    console.log(compile(context, scriptData));
 }

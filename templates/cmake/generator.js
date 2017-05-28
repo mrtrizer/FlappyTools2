@@ -33,6 +33,7 @@ function isExcluded(projectRoot, absolutePath, excludes) {
     return false;
 }
 
+// TODO: Move this function to generate_project or somth like this.
 function sourceList(projectRoot, sourceDirs, excludes) {
     const fs = require("fs");
     const path = require("path");
@@ -51,18 +52,37 @@ function sourceList(projectRoot, sourceDirs, excludes) {
     return outList;
 }
 
+function findAllModules(context) {
+    var list = context.modules;
+    for (let i in context.modules) {
+        const module = context.modules[i];
+        const moduleContext = context.createSubContext(module.path, "default_submodule.json", module.outDir);
+        list = list.concat(findAllModules(moduleContext));
+    }
+    console.log(JSON.stringify(list));
+    return list.filter(function(item, pos, self) {
+        const result = self.find((eItem, ePos) => eItem.name == item.name && ePos < pos) == undefined;
+        console.log("Name: " + item.name + " " + result)
+        return result;
+    });
+}
+
 module.exports.generate = function(context) {
     const path = require("path");
 
+    const overallModules = findAllModules(context);
+
     context.sourceList = sourceList;
+    context.overallModules = overallModules;
 
     const templateDir = path.join(context.templatePath, "cmake_project");
     console.log(templateDir);
     context.compileDir(context, templateDir, context.outDir);
 
-    // Generate subprojects
-    for (let i in context.modules) {
-        const module = context.modules[i];
+        console.log("Modules:")
+    // Generate CMake subprojects
+    for (let i in overallModules) {
+        const module = overallModules[i];
 
         console.log(JSON.stringify(module));
         const moduleContext = context.createSubContext(module.path, "default_submodule.json", module.outDir);

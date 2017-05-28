@@ -19,7 +19,7 @@ function compileFile(config, filePath) {
     return compileString(config, templateData);
 }
 
-function safeFile(path, data) {
+function saveFile(path, data) {
     var fsPath = require('fs-path');
     console.log("Out: " + path);
 
@@ -37,7 +37,7 @@ function compileDir(config, templatePath, outPath) {
 
     if (!fs.lstatSync(templatePath).isDirectory()) {
         const data = compileFile(config, templatePath, outPath)
-        safeFile(compileString(config, outPath), data);
+        saveFile(compileString(config, outPath), data);
         return;
     }
     fs.readdirSync(templatePath).forEach(fileName => {
