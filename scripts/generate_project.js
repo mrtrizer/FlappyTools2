@@ -49,6 +49,74 @@ function run(templatePath, context) {
     generator.generate(context);
 }
 
+// Read file lists in directories recursively. Returns list of pathes.
+function readDirs(root) {
+    const fs = require("fs");
+    const path = require("path");
+
+    let outList = [];
+    const fileList = fs.readdirSync(root);
+    for (let filePathN in fileList) {
+        const filePath = fileList[filePathN];
+        const absoluteFilePath = path.join(root, filePath);
+        const stat = fs.lstatSync(absoluteFilePath);
+        if (stat.isDirectory())
+            outList = outList.concat(readDirs(absoluteFilePath));
+        else
+            outList.push(absoluteFilePath);
+    }
+    return outList;
+}
+
+// Check if file excluded
+function isExcluded(projectRoot, absolutePath, excludes) {
+    const path = require("path");
+
+    const normalizedPath = path.normalize(absolutePath); 
+    for (let excludedN in excludes) {
+        const excluded = excludes[excludedN];
+        const excludeAbsolute = path.join(projectRoot, excluded);
+        const excludeNormalized = path.normalize(excludeAbsolute);
+        if (normalizedPath.indexOf(excludeAbsolute) != -1)
+            return true;
+    }
+    return false;
+}
+
+// Returns source file list considering excludes
+function sourceList(projectRoot, sourceDirs, excludes) {
+    const fs = require("fs");
+    const path = require("path");
+
+    let outList = [];
+    for (let sourceDirN in sourceDirs) {
+        const sourceDir = sourceDirs[sourceDirN];
+        const absoluteSourceDir = path.join(projectRoot, sourceDir)
+        const fileList = readDirs(absoluteSourceDir);
+        for (let filePathN in fileList) {
+            const filePath = fileList[filePathN];
+            if (!isExcluded(projectRoot, filePath, excludes))
+                outList.push(filePath);
+        }
+    }
+    return outList;
+}
+
+// Returns list of modules recursively
+function findAllModules(context) {
+    var list = context.modules;
+    for (let i in context.modules) {
+        const module = context.modules[i];
+        const moduleContext = context.createSubContext(module.path, "default_submodule.json", module.outDir);
+        list = list.concat(findAllModules(moduleContext));
+    }
+    console.log(JSON.stringify(list));
+    return list.filter(function(item, pos, self) {
+        const result = self.find((eItem, ePos) => eItem.name == item.name && ePos < pos) == undefined;
+        console.log("Name: " + item.name + " " + result)
+        return result;
+    });
+}
 function createContext(templatePath, outDir, projectRoot, defaultConfigFileName, configOrder, extraParams) {
     const compile_dir = require("./compile_dir.js");
 
@@ -70,7 +138,9 @@ function createContext(templatePath, outDir, projectRoot, defaultConfigFileName,
         "modules": findModules(projectRoot, outDir, config),
         "outDir": outDir,
         "createSubContext": createSubContext,
-        "normalize": path => normalize(path, projectRoot)
+        "normalize": path => normalize(path, projectRoot),
+        "sourceList": sourceList,
+        "findAllModules": findAllModules
     }
     return context;
 }
