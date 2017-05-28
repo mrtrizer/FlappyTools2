@@ -1,4 +1,4 @@
-** Installation
+## Installation
 Before installation you need:
 * node-js >= 4.2.6
 * cmake >= 3.5.1
