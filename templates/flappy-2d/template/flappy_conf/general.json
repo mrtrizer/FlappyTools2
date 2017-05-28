@@ -1,10 +1,13 @@
 {
-    "name":"[= config.projectName =]",
-    "modules":[
-        {
-            "name":"FlappyEngine",
-            "git.https":"https://github.com/mrtrizer/FlappyEngine.git",
-            "git.branch":"tree_refactoring"
-        }
-    ]
+    "name":"[= config.name =]",
+    "modules": [
+    ],
+    "cxx":{
+        "header_dirs": [
+            "./src"
+        ],
+        "src_dirs": [
+            "./src"
+        ]
+    }
 }
