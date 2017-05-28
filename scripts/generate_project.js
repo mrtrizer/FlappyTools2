@@ -38,8 +38,9 @@ function findModules(projectRoot, outDir, config) {
     for (let i in config.modules) {
         const module = config.modules[i];
         const absolutePath = utils.absolutePath(projectRoot, module.path);
-        const outDir = path.join("modules", module.name);
-        modules.push({"name":module.name, "path":absolutePath, "outDir": outDir});
+        const relativeModuleOutDir = path.join("modules", module.name);
+        const moduleOutDir = utils.absolutePath(outDir, relativeModuleOutDir);
+        modules.push({"name":module.name, "path":absolutePath, "outDir": moduleOutDir});
     }
     return modules;
 }
@@ -110,10 +111,8 @@ function findAllModules(context) {
         const moduleContext = context.createSubContext(module.path, "default_submodule.json", module.outDir);
         list = list.concat(findAllModules(moduleContext));
     }
-    console.log(JSON.stringify(list));
     return list.filter(function(item, pos, self) {
         const result = self.find((eItem, ePos) => eItem.name == item.name && ePos < pos) == undefined;
-        console.log("Name: " + item.name + " " + result)
         return result;
     });
 }
