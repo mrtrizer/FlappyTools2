@@ -2,6 +2,15 @@ cmake_minimum_required (VERSION 3.5.1)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+# Generation of compilation database
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
+  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+    [= projectRoot =]/compile_commands.json
+  )
+ENDIF()
+
 # List all sources from all presented sources excluding exclude pathes
 [% const normalizedSources = sourceList(projectRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
 [% for (let i in normalizedSources) { %]
