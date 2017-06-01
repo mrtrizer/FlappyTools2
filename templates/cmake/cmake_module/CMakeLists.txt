@@ -20,7 +20,7 @@ target_include_directories ([= config.name =] PUBLIC
 # Refer to dependencies. Look at main CMakeLists to find add_subdirectory calls.
     target_link_libraries([= config.name =]
     [% for (let i in modules) { %]
-        [= modules[i].name =]
+        [= modules[i].config.name =]
     [% } %]
     )
 [% } %]

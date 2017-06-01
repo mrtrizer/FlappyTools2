@@ -3,10 +3,12 @@
 
 const path = require("path");
 
-function mergeConfig(projectRoot, templatePath, defaultConfigFileName, configOrder, extraParams) {
+const defaultConfigFileName = "default.json"
+
+function mergeConfig(projectRoot, generatorPath, defaultConfigFileName, configOrder, extraParams) {
     const utils = require("./utils.js");
 
-    const defaultConfig = utils.absolutePath(templatePath, defaultConfigFileName); // template default config
+    const defaultConfig = utils.absolutePath(generatorPath, defaultConfigFileName); // template default config
     const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
 
     let fullConfigOrder = [defaultConfig, generalConfig];
@@ -30,23 +32,8 @@ function normalize(path, projectRoot) {
     return utils.absolutePath(projectRoot, path);
 }
 
-function findModules(projectRoot, outDir, config) {
-    const utils = require("./utils.js");
-    const path = require("path");
-
-    let modules = [];
-    for (let i in config.modules) {
-        const module = config.modules[i];
-        const absolutePath = utils.absolutePath(projectRoot, module.path);
-        const relativeModuleOutDir = path.join("modules", module.name);
-        const moduleOutDir = utils.absolutePath(outDir, relativeModuleOutDir);
-        modules.push({"name":module.name, "path":absolutePath, "outDir": moduleOutDir});
-    }
-    return modules;
-}
-
-function run(templatePath, context) {
-    const generator = require(path.join(templatePath, "generator.js"));
+function run(generatorPath, context) {
+    const generator = require(path.join(generatorPath, "generator.js"));
     generator.generate(context);
 }
 
@@ -103,52 +90,51 @@ function sourceList(projectRoot, sourceDirs, excludes) {
     return outList;
 }
 
-// Returns list of modules recursively
-function findAllModules(context) {
-    var list = context.modules;
-    for (let i in context.modules) {
-        const module = context.modules[i];
-        const moduleContext = context.createSubContext(module.path, "default_submodule.json", module.outDir);
-        list = list.concat(findAllModules(moduleContext));
-    }
-    return list.filter(function(item, pos, self) {
-        const result = self.find((eItem, ePos) => eItem.name == item.name && ePos < pos) == undefined;
-        return result;
-    });
+function findFlappyScript(name) {
+    const path = require('path');
+    const scriptPath = path.dirname(require.main.filename);
+    return path.join(scriptPath, name);
 }
-function createContext(templatePath, outDir, projectRoot, defaultConfigFileName, configOrder, extraParams) {
+
+function createContext(context, projectRoot, defaultConfigFileName) {
     const compile_dir = require("./compile_dir.js");
 
-    const createSubContext = function(subprojectRoot, defaultConfigFileName, outDir) {
-        return createContext(templatePath,
-            outDir,
-            subprojectRoot,
-            defaultConfigFileName,
-            configOrder,
-            extraParams);
-    }
+    const config = mergeConfig(
+        projectRoot,
+        context.generatorPath,
+        defaultConfigFileName,
+        context.configOrder,
+        context.extraParams
+    );
 
-    const config = mergeConfig(projectRoot, templatePath, defaultConfigFileName, configOrder, extraParams);
-    const context = {
+    const newContext = {
         "projectRoot": projectRoot,
         "config": config,
         "compileDir": compile_dir.compileDir,
-        "templatePath": templatePath,
-        "modules": findModules(projectRoot, outDir, config),
-        "outDir": outDir,
-        "createSubContext": createSubContext,
+        "generatorPath": context.generatorPath,
+        "targetOutDir": context.targetOutDir,
         "normalize": path => normalize(path, projectRoot),
         "sourceList": sourceList,
-        "findAllModules": findAllModules
-    }
-    return context;
+        "configOrder": context.configOrder,
+        "extraParams": context.extraParams,
+        "findFlappyScript": findFlappyScript,
+        "createContext": createContext
+    };
+    return newContext;
 }
 
-function generateProject(workingDir, templatePath, outDir, configOrder, projectRoot, extraParams) {
+function generateProject(workingDir, generatorPath, targetOutDir, configOrder, projectRoot, extraParams) {
     if (projectRoot == null)
         projectRoot = workingDir;
-    const context = createContext(templatePath, outDir, projectRoot, "default.json", configOrder, extraParams);
-    run(templatePath, context)
+    const params = {
+        "projectRoot": projectRoot,
+        "generatorPath": generatorPath,
+        "targetOutDir": targetOutDir,
+        "configOrder": configOrder,
+        "extraParams": extraParams
+    };
+    const context = createContext(params, projectRoot, defaultConfigFileName);
+    run(generatorPath, context);
 }
 
 module.exports.generateProject = generateProject;
@@ -168,12 +154,12 @@ if (require.main == module) {
     const utils = require("./utils.js");
 
     const workingDir = process.cwd();
-    const templatePath = utils.absolutePath(workingDir, opt.options["template-dir"]);
+    const generatorPath = utils.absolutePath(workingDir, opt.options["template-dir"]);
     const outDir = utils.absolutePath(workingDir, opt.options["output-dir"]);
     const configOrder = utils.absolutePath(workingDir, opt.options["config"]);
     const projectRoot = null;
     if (opt.options.hasOwnProperty("project-root"))
         projectRoot = utils.absolutePath(workingDir, opt.options["project-root"]);
-    generateProject(workingDir, templatePath, outDir, configOrder, projectRoot);
+    generateProject(workingDir, generatorPath, outDir, configOrder, projectRoot);
 }
 

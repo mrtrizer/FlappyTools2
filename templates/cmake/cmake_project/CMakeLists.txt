@@ -35,7 +35,7 @@ target_include_directories([= config.name =] PRIVATE
 [% if (modules.length > 0) {%]
     target_link_libraries([= config.name =]
     [% for (let i in modules) { %]
-        [= modules[i].name =]
+        [= modules[i].config.name =]
     [% } %]
     )
 [% } %]
