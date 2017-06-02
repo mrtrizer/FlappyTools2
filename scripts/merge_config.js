@@ -1,4 +1,3 @@
-#!/usr/bin/node
 "use strict"
 
 function jsonIterate (jsonObj, outObject) {
@@ -40,17 +39,3 @@ function parseJson(fileList, extraParams) {
 }
 
 module.exports.parseJson = parseJson;
-
-// If run as script
-if (require.main == module) {
-    const opt = require('node-getopt').create([
-      ['h' , 'help', 'Display this help.'],
-    ])
-    .setHelp("Usage: node merge_config.js <config> ...\n\n[[OPTIONS]]")
-    .bindHelp()
-    .parseSystem();
-
-    let fileList = opt.argv;
-
-    console.log(JSON.stringify(parseJson(fileList)));
-}

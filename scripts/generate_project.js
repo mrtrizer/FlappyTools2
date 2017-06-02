@@ -1,4 +1,3 @@
-#!/usr/bin/node
 "use strict"
 
 const path = require("path");
@@ -138,28 +137,3 @@ function generateProject(workingDir, generatorPath, targetOutDir, configOrder, p
 }
 
 module.exports.generateProject = generateProject;
-
-// If run as script
-if (require.main == module) {
-    const opt = require('node-getopt').create([
-        ['o', 'output-dir=ARG', 'Output dir.'],
-        ['t', 'template-dir=ARG', 'Template dir. Should contain generator.js.'],
-        ['c', 'config=ARG+', 'Configuration.'],
-        ['p', 'project-root=ARG', 'Project root. If not set, root dir will be used as root.']
-        ['h', 'help', 'Display this help.'],
-    ])
-    .bindHelp()
-    .parseSystem();
-
-    const utils = require("./utils.js");
-
-    const workingDir = process.cwd();
-    const generatorPath = utils.absolutePath(workingDir, opt.options["template-dir"]);
-    const outDir = utils.absolutePath(workingDir, opt.options["output-dir"]);
-    const configOrder = utils.absolutePath(workingDir, opt.options["config"]);
-    const projectRoot = null;
-    if (opt.options.hasOwnProperty("project-root"))
-        projectRoot = utils.absolutePath(workingDir, opt.options["project-root"]);
-    generateProject(workingDir, generatorPath, outDir, configOrder, projectRoot);
-}
-

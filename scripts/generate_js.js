@@ -1,4 +1,3 @@
-#!/usr/bin/node
 "use strict"
 
 //Script generates javascript code from template file
@@ -87,21 +86,3 @@ function generate(inputData) {
 }
 
 module.exports.generate = generate;
-
-// If run as script
-if (require.main == module) {
-    const opt = require('node-getopt').create([
-      ['t' , 'template-file=ARG'   , 'Template file.'],
-      ['h' , 'help', 'Display this help.'],
-    ])
-    .bindHelp()
-    .parseSystem();
-
-    const inputFileName = opt.options["template-file"];
-    const fs = require('fs');
-    const inputData = fs.readFileSync(inputFileName, "utf8");
-    const jsScript = generate(inputData);
-
-    console.log(jsScript);
-}
-

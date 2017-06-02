@@ -1,4 +1,3 @@
-#!/usr/bin/node
 "use strict"
 
 function compileString(config, templateData) {
