@@ -6,22 +6,24 @@ module.exports.generate = function(context) {
     const utils = require(context.findFlappyScript("utils.js"));
     const modules = require(context.findFlappyScript("modules.js"));
 
-    // Full list of modules in project, recursively scanned.
-    context.overallModules = modules.findAllModules(context);
+    // Get pathes of project and module template folders
+    const moduleTemplatePath = path.join(context.generatorPath, "cmake_module");
+    const projectTemplatePath = path.join(context.generatorPath, "cmake_project");
+
     // Iterate all modules in a project
-    for (let i in context.overallModules) {
-        const module = context.overallModules[i];
-        module.modules = modules.findModules(module);
-        // Save outDir for module in it's context. The outDir is used later for references in project file.
-        module.outDir = utils.absolutePath(context.targetOutDir, module.config.name);
-        // Compile module template
-        const templatePath = path.join(context.generatorPath, "cmake_module");
-        context.compileDir(module, templatePath, module.outDir);
+    const allModulesContexts = modules.findAllModules(context);
+    for (let i in context.allModulesContexts) {
+        const moduleContext = context.allModulesContexts[i];
+
+        // Include nessesary parameters to module context and compile the template
+        moduleContext.modules = modules.findModules(moduleContext);
+        moduleContext.outDir = utils.absolutePath(context.targetOutDir, moduleContext.config.name);
+        context.compileDir(moduleContext, moduleTemplatePath, moduleContext.outDir);
     }
-    // List of modules included in project, non recursively.
+
+    // Add nessary params to context and compile the template
+    context.overallModules = allModulesContexts;
     context.modules = modules.findModules(context);
-    // Compile project template
-    const templatePath = path.join(context.generatorPath, "cmake_project");
-    context.compileDir(context, templatePath, context.targetOutDir);
+    context.compileDir(context, projectTemplatePath, context.targetOutDir);
 }
 
