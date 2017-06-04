@@ -12,7 +12,6 @@ function mergeConfig(projectRoot, generatorPath, defaultConfigFileName, configOr
 
     let fullConfigOrder = [defaultConfig, generalConfig];
 
-    console.log(configOrder);
 
     for (let i in configOrder) {
         const config = configOrder[i];
@@ -22,7 +21,6 @@ function mergeConfig(projectRoot, generatorPath, defaultConfigFileName, configOr
 
     const merge_config = require("./merge_config.js")
     const config =  merge_config.parseJson(fullConfigOrder, extraParams);
-    console.log(config);
     return config;
 }
 

@@ -12,8 +12,8 @@ module.exports.generate = function(context) {
 
     // Iterate all modules in a project
     const allModulesContexts = modules.findAllModules(context);
-    for (let i in context.allModulesContexts) {
-        const moduleContext = context.allModulesContexts[i];
+    for (let i in allModulesContexts) {
+        const moduleContext = allModulesContexts[i];
 
         // Include nessesary parameters to module context and compile the template
         moduleContext.modules = modules.findModules(moduleContext);

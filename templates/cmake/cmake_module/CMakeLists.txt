@@ -26,4 +26,12 @@ target_include_directories ([= config.name =] PUBLIC
 [% } %]
 
 # All preprocessor defenition from module configuration
-target_compile_options([= config.name =] PRIVATE [= config.flags.join(" ") =])
+target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =])
+
+[% if (config.cmake && config.cmake.packages) { %]
+    [% for (let i in config.cmake.packages) { %]
+        find_package([= config.cmake.packages[i].name =] REQUIRED)
+        target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
+        target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
+    [% } %]
+[% } %]
