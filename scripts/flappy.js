@@ -6,22 +6,14 @@ const path = require("path");
 const scriptPath = path.dirname(require.main.filename);
 const flappyGenPath = path.join(scriptPath, "flappy_gen.js");
 const flappyInitPath = path.join(scriptPath, "flappy_init.js");
+const flappyBuildPath = path.join(scriptPath, "flappy_build.js");
 
-function gen(argv) {
-    childProcess.execFile(flappyGenPath, argv, (error, stdout, stderr) => {
-        if (error != null)
-            throw error;
+function call(command, argv) {
+    childProcess.execFile(command, argv, (error, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
-    });
-}
-
-function init(argv) {
-    childProcess.execFile(flappyInitPath, argv, (error, stdout, stderr) => {
         if (error != null)
             throw error;
-        console.log(stdout);
-        console.log(stderr);
     });
 }
 
@@ -41,10 +33,13 @@ if (argv.length < 1)
 
 switch (argv[0]) {
     case "gen":
-        gen(argv.slice(1));
+        call(flappyGenPath, argv.slice(1));
     break;
     case "init":
-        init(argv.slice(1));
+        call(flappyInitPath, argv.slice(1));
+    break;
+    case "build":
+        call(flappyBuildPath, argv.slice(1));
     break;
     case "--help":
     case "-h":

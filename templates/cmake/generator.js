@@ -27,3 +27,15 @@ module.exports.generate = function(context) {
     context.compileDir(context, projectTemplatePath, context.targetOutDir);
 }
 
+function call(command, cwd) {
+    const childProcess = require("child_process");
+    console.log(childProcess.execSync(command, {"cwd": cwd}));
+}
+
+module.exports.build = function(context) {
+
+    console.log("Project out dir: " + context.targetOutDir);
+    call("cmake -G \"Unix Makefiles\"", context.targetOutDir);
+    call("make", context.targetOutDir);
+}
+

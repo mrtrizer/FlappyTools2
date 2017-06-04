@@ -22,11 +22,7 @@ function saveFile(path, data) {
     var fsPath = require('fs-path');
     console.log("Out: " + path);
 
-    fsPath.writeFile(path, data, function(err){
-        if(err) {
-            throw err;
-        }
-    });
+    fsPath.writeFileSync(path, data);
 }
 
 function compileDir(config, templatePath, outPath) {

@@ -29,9 +29,8 @@ function normalize(path, projectRoot) {
     return utils.absolutePath(projectRoot, path);
 }
 
-function run(generatorPath, context) {
-    const generator = require(path.join(generatorPath, "generator.js"));
-    generator.generate(context);
+function requireGeneratorScript(generatorPath) {
+    return require(path.join(generatorPath, "generator.js"));
 }
 
 // Read file lists in directories recursively. Returns list of pathes.
@@ -120,18 +119,16 @@ function createContext(context, projectRoot, defaultConfigFileName) {
     return newContext;
 }
 
-function generateProject(workingDir, generatorPath, targetOutDir, configOrder, projectRoot, extraParams) {
-    if (projectRoot == null)
-        projectRoot = workingDir;
-    const params = {
-        "projectRoot": projectRoot,
-        "generatorPath": generatorPath,
-        "targetOutDir": targetOutDir,
-        "configOrder": configOrder,
-        "extraParams": extraParams
-    };
-    const context = createContext(params, projectRoot, defaultConfigFileName);
-    run(generatorPath, context);
+function generateProject(params) {
+    const context = createContext(params, params.projectRoot, defaultConfigFileName);
+    requireGeneratorScript(params.generatorPath).generate(context);
+}
+
+function buildProject(params) {
+    const context = createContext(params, params.projectRoot, defaultConfigFileName);
+    requireGeneratorScript(params.generatorPath).generate(context);
+    requireGeneratorScript(params.generatorPath).build(context);
 }
 
 module.exports.generateProject = generateProject;
+module.exports.buildProject = buildProject;
