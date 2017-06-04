@@ -43,10 +43,8 @@ target_include_directories([= config.name =] PRIVATE
 # All preprocessor defenition from configuration
 target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =])
 
-[% if (config.cmake && config.cmake.packages) { %]
-    [% for (let i in config.cmake.packages) { %]
-        find_package([= config.cmake.packages[i].name =] REQUIRED)
-        target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
-        target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
-    [% } %]
+[% for (let i in config.cmake.packages) { %]
+    find_package([= config.cmake.packages[i].name =] REQUIRED)
+    target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
+    target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
 [% } %]

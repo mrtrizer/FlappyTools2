@@ -4,5 +4,8 @@
         "flags": ["-std=c++1y"],
         "include": [],
         "source": []
+    },
+    "cmake": {
+        "modules": []
     }
 }
