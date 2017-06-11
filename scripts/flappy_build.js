@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/node --harmony
 "use strict"
 
 const utils = require("./utils.js");

@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/node --harmony
 "use strict"
 
 const childProcess = require("child_process");
@@ -22,6 +22,7 @@ function printHelp() {
     console.log("\tflappy --help - Print current help message");
     console.log("\tflappy <command name> --help - For details about command");
     console.log("\tflappy gen <template name> - Generate project for current project dir");
+    console.log("\tflappy build <template name> - Generate project for current project dir and build it.");
     console.log("\tflappy init <template name> <project name> - Generate flappy project with template and project name. "
                 + "New project folder with will be created");
 }
