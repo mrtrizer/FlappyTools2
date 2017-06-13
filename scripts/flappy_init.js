@@ -1,4 +1,4 @@
-#!/usr/bin/node --harmony
+#!/usr/bin/env node --harmony
 "use strict"
 
 function flappyInit(workingDir, templateName, projectName) {
