@@ -9,8 +9,6 @@ To install:
 3. Enter build folder
 4. Run `cmake -G "Unix Makefiles" ..`
 5. Run `make install` under root (with sudo)
-6. Create configuration dir `mkdir ~/.config/flappy`
-7. Create default configuration file `echo '{"template_dirs": []}' > ~/.config/flappy/config.json`
 
 After installation you can run `flappy --help` and look at repository wiki for
 details.
