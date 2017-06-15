@@ -74,13 +74,13 @@ function getFlappyConfig() {
     const path = require("path");
 
     if (typeof os.homedir === "undefined") {
-        console.log("Update nodejs. For proper work nodejs >= 4.0 required.");
-        return {
-            "template_dirs":[]
-        };
+        throw new Error("Update nodejs. For proper work nodejs >= 4.0 required.");
     }
 
     const configFilePath = path.join(os.homedir(), ".config/flappy/config.json");
+    if (!fs.existsSync(configFilePath)) {
+        return {"template_dirs":[]};
+    }
     const configData = fs.readFileSync(configFilePath, "utf8");
     const flappyConfig = JSON.parse(configData);
     return flappyConfig;
