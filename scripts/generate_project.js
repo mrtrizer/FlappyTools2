@@ -6,6 +6,7 @@ const defaultConfigFileName = "default.json"
 
 function mergeConfig(projectRoot, generatorPath, defaultConfigFileName, configOrder, extraParams) {
     const utils = require("./utils.js");
+    const path = require("path");
 
     const defaultConfig = utils.absolutePath(generatorPath, defaultConfigFileName); // template default config
     const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
@@ -16,8 +17,10 @@ function mergeConfig(projectRoot, generatorPath, defaultConfigFileName, configOr
     for (let i in configOrder) {
         const config = configOrder[i];
 
-        fullConfigOrder.push(utils.absolutePath(projectRoot, "flappy_conf", config));
+        fullConfigOrder.push(path.join(projectRoot, "flappy_conf", config + ".json"));
     }
+
+    console.log("ConfigOrder: " + JSON.stringify(fullConfigOrder));
 
     const merge_config = require("./merge_config.js")
     const config =  merge_config.parseJson(fullConfigOrder, extraParams);

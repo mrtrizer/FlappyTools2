@@ -1,17 +1,9 @@
 "use strict"
 
 // Converts relative pathes to absolute normalized pathes
-function absolutePath (basePath, pathList) {
-    if (Array.isArray(pathList)) {
-        let outPathList = [];
-        for (let i in pathList) {
-            outPathList.push(absolutePath(basePath, pathList[i]));
-        }
-        return outPathList;
-    } else {
+function absolutePath () {
         const path = require("path");
-        return path.normalize(path.join(basePath, pathList));
-    }
+        return path.normalize(path.join.apply(path, arguments));
 }
 
 function findProjectRoot(workingDir) {
@@ -89,3 +81,5 @@ function getFlappyConfig() {
 module.exports.absolutePath = absolutePath;
 module.exports.findParams = findParams;
 module.exports.findProjectRoot = findProjectRoot;
+module.exports.findTemplate = findTemplate;
+module.exports.getFlappyConfig = getFlappyConfig;

@@ -2,13 +2,17 @@
 "use strict"
 
 function flappyInit(workingDir, templateName, projectName) {
-    const flappyGen = require("./flappy_gen.js");
     const path = require("path");
+    const compileDir = require("./compile_dir.js");
+    const utils = require("./utils");
 
     const outDir = path.join(workingDir, projectName)
-    const extraParams = {"projectName": projectName};
+    const extraParams = {"name": projectName};
 
-    flappyGen.flappyGenerate(workingDir, workingDir, templateName, outDir, [], extraParams);
+    const config = utils.getFlappyConfig();
+    const templatePath = utils.findTemplate(config, workingDir, templateName);
+
+    compileDir.compileDir({"config": extraParams}, templatePath, outDir);
 }
 
 // If run as script
