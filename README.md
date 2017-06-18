@@ -1,4 +1,5 @@
 ## Installation
+Tested on OSX and Ubuntu. Windows is not supported yet.
 Before installation you need:
 * node-js >= 4.2.6
 * cmake >= 3.5.1
@@ -12,4 +13,10 @@ To install:
 
 After installation you can run `flappy --help` and look at repository wiki for
 details.
+
+Using example:
+1. flappy init cpp <Project name>
+2. cd <Project name>
+3. flappy gen cmake
+4. flappy build cmake
 
