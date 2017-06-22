@@ -1,0 +1,27 @@
+language: cpp
+compiler: gcc
+sudo: required
+dist: trusty
+
+before_install:
+ - sudo apt-get install -qq gcc-5 g++-5 nodejs
+ - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
+ - git submodule update --init --recursive
+ - git clone https://github.com/mrtrizer/FlappyTools2.git flappytools
+
+script:
+ - pushd flappytools
+ - cmake -G "Unix Makefiles"
+ - sudo make install
+ - popd
+ - flappy init cpp test
+ - pushd test
+ - flappy gen cmake
+ - flappy build cmake
+ - pushd generated/cmake
+ - ./test
+ - popd
+ - popd
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
