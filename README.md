@@ -1,3 +1,8 @@
+## Status
+Installation and test
+
+[![Build Status](https://travis-ci.org/mrtrizer/FlappyTools2.svg?branch=master)](https://travis-ci.org/mrtrizer/FlappyTools2)
+
 ## Installation
 Tested on OSX and Ubuntu. Windows is not supported yet.
 Before installation you need:
