@@ -17,12 +17,12 @@ script:
  - cmake -G "Unix Makefiles"
  - sudo make install
  - popd
- - flappy init cpp test
- - pushd test
+ - flappy init cpp flappy_tools_test
+ - pushd flappy_tools_test
  - flappy gen cmake
  - flappy build cmake
  - pushd generated/cmake
- - ./test
+ - ./flappy_tools_test
  - popd
  - popd
 
