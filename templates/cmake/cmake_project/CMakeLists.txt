@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0.2)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -10,6 +10,10 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
     [= projectRoot =]/compile_commands.json
   )
 ENDIF()
+
+[% if (config.cmake.module_path) { %]
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
+[% } %]
 
 # List all sources from all presented sources excluding exclude pathes
 [% const normalizedSources = sourceList(projectRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]

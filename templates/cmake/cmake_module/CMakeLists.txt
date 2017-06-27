@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0.2)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -9,6 +9,10 @@ set(CMAKE_BUILD_TYPE Debug)
 [% } %]
 
 add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
+
+[% if (config.cmake.module_path) { %]
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
+[% } %]
 
 target_include_directories ([= config.name =] PUBLIC 
 [% for (let i in config.cxx.header_dirs) { %]
