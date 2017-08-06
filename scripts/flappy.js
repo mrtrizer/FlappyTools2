@@ -5,6 +5,7 @@ const childProcess = require("child_process");
 const path = require("path");
 const scriptPath = path.dirname(require.main.filename);
 const flappyGenPath = path.join(scriptPath, "flappy_gen.js");
+const flappyGenResPath = path.join(scriptPath, "flappy_gen_res.js");
 const flappyInitPath = path.join(scriptPath, "flappy_init.js");
 const flappyBuildPath = path.join(scriptPath, "flappy_build.js");
 
@@ -22,6 +23,7 @@ function printHelp() {
     console.log("\tflappy --help - Print current help message");
     console.log("\tflappy <command name> --help - For details about command");
     console.log("\tflappy gen <template name> - Generate project for current project dir");
+    console.log("\tflappy gen-res - Generate resources");
     console.log("\tflappy build <template name> - Generate project for current project dir and build it.");
     console.log("\tflappy init <template name> <project name> - Generate flappy project with template and project name. "
                 + "New project folder with will be created");
@@ -35,6 +37,9 @@ if (argv.length < 1)
 switch (argv[0]) {
     case "gen":
         call(flappyGenPath, argv.slice(1));
+    break;
+    case "gen-res":
+        call(flappyGenResPath, argv.slice(1));
     break;
     case "init":
         call(flappyInitPath, argv.slice(1));
