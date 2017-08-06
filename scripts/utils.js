@@ -79,6 +79,7 @@ function getFlappyConfig() {
 }
 
 function copyFile(source, target, cb) {
+    const fs = require("fs")
     var cbCalled = false;
 
     var rd = fs.createReadStream(source);
@@ -95,7 +96,7 @@ function copyFile(source, target, cb) {
     rd.pipe(wr);
 
     function done(err) {
-        if (!cbCalled) {
+        if (cb && !cbCalled) {
             cb(err);
             cbCalled = true;
         }

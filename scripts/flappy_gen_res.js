@@ -3,6 +3,7 @@
 
 const utils = require("./utils.js");
 const path = require("path");
+const fs = require("fs");
 
 const opt = require('node-getopt').create([
     ['o', 'output-dir=ARG', 'Output dir.'],
@@ -49,8 +50,8 @@ if (!fs.existsSync(cacheDir)){
     fs.mkdirSync(cacheDir);
 }
 let resSrcDir = path.join(projectRoot, "res_src");
-let generatorList = getMapOfGenerators();
-var listOfResConfigs = getListOfResConfigs(projectRoot);
-for (let resConfig in listOfResConfigs) {
-    generateWithGenerators(resConfig, generatorList, resSrcDir, cacheDir)
+let generatorMap = getMapOfGenerators();
+var resConfigList = getListOfResConfigs(projectRoot);
+for (let resConfigN in resConfigList) {
+    generateWithGenerators(resConfigList[resConfigN], generatorMap, resSrcDir, cacheDir)
 }
