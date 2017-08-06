@@ -78,8 +78,33 @@ function getFlappyConfig() {
     return flappyConfig;
 }
 
+function copyFile(source, target, cb) {
+    var cbCalled = false;
+
+    var rd = fs.createReadStream(source);
+    rd.on("error", function(err) {
+        done(err);
+    });
+    var wr = fs.createWriteStream(target);
+    wr.on("error", function(err) {
+        done(err);
+    });
+    wr.on("close", function(ex) {
+        done();
+    });
+    rd.pipe(wr);
+
+    function done(err) {
+        if (!cbCalled) {
+            cb(err);
+            cbCalled = true;
+        }
+    }
+}
+
 module.exports.absolutePath = absolutePath;
 module.exports.findParams = findParams;
 module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
 module.exports.getFlappyConfig = getFlappyConfig;
+module.exports.copyFile = copyFile;
