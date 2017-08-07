@@ -2,6 +2,7 @@
 "use strict"
 
 const utils = require("./utils.js");
+const generateProject = require("./generate_resources.js");
 const path = require("path");
 const fs = require("fs");
 
@@ -13,45 +14,17 @@ const opt = require('node-getopt').create([
 .parseSystem();
 
 if (opt.argv.length < 1) {
-    console.log("flappy gen <template>");
+    console.log("flappy gen-res <template>");
     return;
 }
 
 const workingDir = process.cwd();
 const projectRoot = utils.findProjectRoot(workingDir);
 
-function getListOfResConfigs(projectRoot) {
-    return [
-        {
-            "type":"text",
-            "srcPath":"test.json"
-        }
-    ];
-}
+const projectOutDir = opt.options["output-dir"];
+const templateName = opt.argv[0];
 
-function getMapOfGenerators() {
-    return {
-        "text": {
-            "generate": function (config, resSrcDir, cacheDir) {
-                const srcPath = path.join(resSrcDir, config.srcPath);
-                const cachePath = path.join(cacheDir, config.srcPath);
-                utils.copyFile(srcPath, cachePath)
-            }
-        }
-    };
-}
+const configOrder = opt.argv.slice(1);
 
-function generateWithGenerators(config, generatorMap, resSrcDir, cacheDir) {
-    generatorMap[config.type].generate(config, resSrcDir, cacheDir);
-}
-
-let cacheDir = path.join(projectRoot, "flappy_cache");
-if (!fs.existsSync(cacheDir)){
-    fs.mkdirSync(cacheDir);
-}
-let resSrcDir = path.join(projectRoot, "res_src");
-let generatorMap = getMapOfGenerators();
-var resConfigList = getListOfResConfigs(projectRoot);
-for (let resConfigN in resConfigList) {
-    generateWithGenerators(resConfigList[resConfigN], generatorMap, resSrcDir, cacheDir)
-}
+var params = utils.findParams(projectRoot, templateName, projectOutDir, configOrder, []);
+generateProject.generateResources(params);

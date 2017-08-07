@@ -103,9 +103,124 @@ function copyFile(source, target, cb) {
     }
 }
 
+// Read file lists in directories recursively. Returns list of pathes.
+function readDirs(root) {
+    const fs = require("fs");
+    const path = require("path");
+
+    let outList = [];
+    const fileList = fs.readdirSync(root);
+    for (let filePathN in fileList) {
+        const filePath = fileList[filePathN];
+        const absoluteFilePath = path.join(root, filePath);
+        const stat = fs.lstatSync(absoluteFilePath);
+        if (stat.isDirectory())
+            outList = outList.concat(readDirs(absoluteFilePath));
+        else
+            outList.push(absoluteFilePath);
+    }
+    return outList;
+}
+
+function mergeConfigs(projectRoot, generatorPath, defaultConfigFileName, configOrder) {
+    const utils = require("./utils.js");
+    const path = require("path");
+
+    const defaultConfig = utils.absolutePath(generatorPath, defaultConfigFileName); // template default config
+    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
+
+    let fullConfigOrder = [defaultConfig, generalConfig];
+
+    for (let i in configOrder) {
+        const config = configOrder[i];
+
+        fullConfigOrder.push(path.join(projectRoot, "flappy_conf", config + ".json"));
+    }
+
+    return fullConfigOrder;
+}
+
+function normalize(path, projectRoot) {
+    const utils = require("./utils.js");
+    return utils.absolutePath(projectRoot, path);
+}
+
+// Check if file excluded
+function isExcluded(projectRoot, absolutePath, excludes) {
+    const path = require("path");
+
+    const normalizedPath = path.normalize(absolutePath);
+    for (let excludedN in excludes) {
+        const excluded = excludes[excludedN];
+        const excludeAbsolute = path.join(projectRoot, excluded);
+        const excludeNormalized = path.normalize(excludeAbsolute);
+        if (normalizedPath.indexOf(excludeAbsolute) != -1)
+            return true;
+    }
+    return false;
+}
+
+// Returns source file list considering excludes
+function sourceList(projectRoot, sourceDirs, excludes) {
+    const fs = require("fs");
+    const path = require("path");
+
+    let outList = [];
+    for (let sourceDirN in sourceDirs) {
+        const sourceDir = sourceDirs[sourceDirN];
+        const absoluteSourceDir = path.join(projectRoot, sourceDir)
+        const fileList = readDirs(absoluteSourceDir);
+        for (let filePathN in fileList) {
+            const filePath = fileList[filePathN];
+            if (!isExcluded(projectRoot, filePath, excludes))
+                outList.push(filePath);
+        }
+    }
+    return outList;
+}
+
+function findFlappyScript(name) {
+    const path = require('path');
+    const scriptPath = path.dirname(require.main.filename);
+    return path.join(scriptPath, name);
+}
+
+function createContext(context, projectRoot, defaultConfigFileName) {
+    const compile_dir = require("./compile_dir.js");
+    const merge_config = require("./merge_config.js");
+
+    const configOrder = mergeConfigs(
+        projectRoot,
+        context.generatorPath,
+        defaultConfigFileName,
+        context.configOrder
+    );
+
+    const config = merge_config.parseJson(configOrder, context.extraParams);
+
+    const newContext = {
+        "projectRoot": projectRoot,
+        "config": config,
+        "compileDir": compile_dir.compileDir,
+        "generatorPath": context.generatorPath,
+        "targetOutDir": context.targetOutDir,
+        "normalize": path => normalize(path, projectRoot),
+        "sourceList": sourceList,
+        "configOrder": context.configOrder,
+        "extraParams": context.extraParams,
+        "findFlappyScript": findFlappyScript,
+        "createContext": createContext
+    };
+    return newContext;
+}
+
 module.exports.absolutePath = absolutePath;
 module.exports.findParams = findParams;
 module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
 module.exports.getFlappyConfig = getFlappyConfig;
 module.exports.copyFile = copyFile;
+module.exports.readDirs = readDirs;
+module.exports.sourceList = sourceList;
+module.exports.createContext = createContext;
+module.exports.findFlappyScript = findFlappyScript;
