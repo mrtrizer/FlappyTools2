@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "dependencies": {
         "fs-path": "*",
-        "node-getopt": "*"
+        "node-getopt": "*",
+        "node-fs-extra": "*"
     }
 }
