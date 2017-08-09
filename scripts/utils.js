@@ -79,6 +79,7 @@ function getFlappyConfig() {
 }
 
 function requireGeneratorScript(generatorPath) {
+    const path = require("path");
     return require(path.join(generatorPath, "generator.js"));
 }
 
