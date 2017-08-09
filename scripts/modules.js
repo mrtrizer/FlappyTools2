@@ -2,20 +2,6 @@
 
 const defaultConfigFileNameSubmodule = "default_submodule.json"
 
-function findModulesRaw(projectRoot, modules) {
-    const path = require("path");
-    const utils = require(context.findFlappyScript("utils.js"));
-
-    let modules = [];
-    for (let i in modules) {
-        const module = modules[i];
-        const absolutePath = utils.absolutePath(projectRoot, module.path);
-        const moduleConfig = mergeConfig
-        modules.push(moduleContext);
-    }
-    return modules;
-}
-
 function findModules(context) {
     const path = require("path");
     const utils = require(context.findFlappyScript("utils.js"));
