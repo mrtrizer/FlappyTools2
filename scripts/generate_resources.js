@@ -96,7 +96,7 @@ function generateResourcesInModules(context, generatorList) {
 }
 
 function generateResources(params) {
-    const context = utils.createContext(params, params.projectRoot, "default.json");
+    const context = utils.createContext(params, params.projectRoot, utils.defaultConfigFileName);
     let generatorList = getListOfGenerators(context);
     generateResourcesInModules(context, generatorList);
 }

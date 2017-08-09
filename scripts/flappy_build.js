@@ -2,7 +2,7 @@
 "use strict"
 
 const utils = require("./utils.js");
-const generateProject = require("./generate_project.js");
+const buildProject = require("./build_project.js");
 
 const opt = require('node-getopt').create([
     ['h', 'help', 'Display this help.'],
@@ -26,5 +26,4 @@ const templateName = opt.argv[0];
 const configOrder = opt.argv.slice(1);
 
 var params = utils.findParams(projectRoot, templateName, projectOutDir, configOrder, []);
-generateProject.buildProject(params);
-
+buildProject.buildProject(params);

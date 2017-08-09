@@ -37,6 +37,6 @@ module.exports.build = function(context) {
     call("make", context.targetOutDir);
 }
 
-module.exports.packRes = function (context, res) {
+module.exports.packRes = function (context, config, resource) {
 
 }

@@ -78,6 +78,10 @@ function getFlappyConfig() {
     return flappyConfig;
 }
 
+function requireGeneratorScript(generatorPath) {
+    return require(path.join(generatorPath, "generator.js"));
+}
+
 function copyFile(source, target, cb) {
     const fs = require("fs")
     var cbCalled = false;
@@ -214,11 +218,13 @@ function createContext(context, projectRoot, defaultConfigFileName) {
     return newContext;
 }
 
+module.exports.defaultConfigFileName = "default.json";
 module.exports.absolutePath = absolutePath;
 module.exports.findParams = findParams;
 module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
 module.exports.getFlappyConfig = getFlappyConfig;
+module.exports.requireGeneratorScript = requireGeneratorScript;
 module.exports.copyFile = copyFile;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
