@@ -214,6 +214,7 @@ function createContext(context, projectRoot, defaultConfigFileName) {
         "configOrder": context.configOrder,
         "extraParams": context.extraParams,
         "findFlappyScript": findFlappyScript,
+        "require": require,
         "createContext": createContext
     };
     return newContext;

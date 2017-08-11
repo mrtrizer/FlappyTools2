@@ -4,6 +4,6 @@
     "dependencies": {
         "fs-path": "*",
         "node-getopt": "*",
-        "node-fs-extra": "*"
+        "fs-extra": "*"
     }
 }

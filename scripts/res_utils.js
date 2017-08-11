@@ -57,5 +57,47 @@ function getListOfGenerators(context) {
     return generators;
 }
 
+function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
+
+    var iterateWithGenerators = function (config, resSrcDir, cacheDir) {
+        for (const i in generatorList) {
+            const generator = generatorList[i];
+            if ((generator.type == config.type) || (generator.type == "*"))
+                callback(config, generator, resSrcDir, cacheDir);
+        }
+    }
+
+    let cacheSubDir = path.join(cacheDir, context.config.name);
+    if (!fs.existsSync(cacheSubDir))
+        fs.mkdirSync(cacheSubDir);
+
+    let resSrcDir = path.join(context.projectRoot, "res_src");
+
+    var resConfigList = getListOfResConfigs(resSrcDir);
+    for (let resConfigN in resConfigList) {
+        var config = resConfigList[resConfigN];
+        iterateWithGenerators(config, resSrcDir, cacheSubDir);
+    }
+}
+
+function iterateResourcesRecursive(context, callback) {
+    const modules = require("./modules.js");
+
+    let cacheDir = path.join(context.projectRoot, "flappy_cache");
+    if (!fs.existsSync(cacheDir))
+        fs.mkdirSync(cacheDir);
+
+    let generatorList = getListOfGenerators(context);
+    iterateResourcesInContext(context, generatorList, cacheDir, callback);
+
+    // Iterate all modules in a project
+    const allModulesContexts = modules.findAllModules(context);
+    for (const i in allModulesContexts) {
+        const moduleContext = allModulesContexts[i];
+        iterateResourcesInContext(moduleContext, generatorList, cacheDir, callback);
+    }
+}
+
 module.exports.getListOfGenerators = getListOfGenerators;
 module.exports.getListOfResConfigs = getListOfResConfigs;
+module.exports.iterateResourcesRecursive = iterateResourcesRecursive;

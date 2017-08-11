@@ -37,6 +37,15 @@ module.exports.build = function(context) {
     call("make", context.targetOutDir);
 }
 
-module.exports.packRes = function (context, config, resource) {
+module.exports.packRes = function (context, config, generator, resSrcDir, cacheDir) {
+    const fse = context.require("fs-extra");
+    const path = require("path");
 
+    var resList = generator.getResList(config, resSrcDir, cacheDir);
+    for (const i in resList) {
+        const res = resList[i];
+
+        const outPath = path.join(context.targetOutDir, "resources", res.path);
+        fse.copySync(res.fullPath, outPath);
+    }
 }
