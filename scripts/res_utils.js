@@ -58,36 +58,35 @@ function getListOfGenerators(context) {
 }
 
 function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
+    const fse = require('fs-extra');
 
-    var iterateWithGenerators = function (config, resSrcDir, cacheDir) {
+    const findGenerator = function (resConfig, resSrcDir, cacheSubDir) {
         for (const i in generatorList) {
             const generator = generatorList[i];
-            if ((generator.type == config.type) || (generator.type == "*"))
-                callback(config, generator, resSrcDir, cacheDir);
+            if ((generator.type == resConfig.type) || (generator.type == "*"))
+                return generator;
         }
+        return null;
     }
 
-    let cacheSubDir = path.join(cacheDir, context.config.name);
-    if (!fs.existsSync(cacheSubDir))
-        fs.mkdirSync(cacheSubDir);
+    const cacheSubDir = path.join(cacheDir, context.config.name);
+    fse.mkdirsSync(cacheSubDir);
+    const resSrcDir = path.join(context.projectRoot, "res_src");
 
-    let resSrcDir = path.join(context.projectRoot, "res_src");
-
-    var resConfigList = getListOfResConfigs(resSrcDir);
-    for (let resConfigN in resConfigList) {
-        var config = resConfigList[resConfigN];
-        iterateWithGenerators(config, resSrcDir, cacheSubDir);
+    const resConfigList = getListOfResConfigs(resSrcDir);
+    for (const i in resConfigList) {
+        const resConfig = resConfigList[i];
+        const generator = findGenerator(resConfig, resSrcDir, cacheSubDir);
+        if (generator != null)
+            callback(resConfig, generator, resSrcDir, cacheSubDir);
     }
 }
 
 function iterateResourcesRecursive(context, callback) {
     const modules = require("./modules.js");
 
-    let cacheDir = path.join(context.projectRoot, "flappy_cache");
-    if (!fs.existsSync(cacheDir))
-        fs.mkdirSync(cacheDir);
-
-    let generatorList = getListOfGenerators(context);
+    const cacheDir = path.join(context.projectRoot, "flappy_cache");
+    const generatorList = getListOfGenerators(context);
     iterateResourcesInContext(context, generatorList, cacheDir, callback);
 
     // Iterate all modules in a project

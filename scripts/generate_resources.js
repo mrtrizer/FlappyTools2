@@ -7,7 +7,7 @@ function generateResources(params) {
     const context = utils.createContext(params, params.projectRoot, utils.defaultConfigFileName);
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
-        generator.generate(config, resSrcDir, cacheDir);
+        generator.generate(context, config, resSrcDir, cacheDir);
     });
 }
 

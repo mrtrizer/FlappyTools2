@@ -83,31 +83,6 @@ function requireGeneratorScript(generatorPath) {
     return require(path.join(generatorPath, "generator.js"));
 }
 
-function copyFile(source, target, cb) {
-    const fs = require("fs")
-    var cbCalled = false;
-
-    var rd = fs.createReadStream(source);
-    rd.on("error", function(err) {
-        done(err);
-    });
-    var wr = fs.createWriteStream(target);
-    wr.on("error", function(err) {
-        done(err);
-    });
-    wr.on("close", function(ex) {
-        done();
-    });
-    rd.pipe(wr);
-
-    function done(err) {
-        if (cb && !cbCalled) {
-            cb(err);
-            cbCalled = true;
-        }
-    }
-}
-
 // Read file lists in directories recursively. Returns list of pathes.
 function readDirs(root) {
     const fs = require("fs");
@@ -227,7 +202,6 @@ module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
 module.exports.getFlappyConfig = getFlappyConfig;
 module.exports.requireGeneratorScript = requireGeneratorScript;
-module.exports.copyFile = copyFile;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
 module.exports.createContext = createContext;
