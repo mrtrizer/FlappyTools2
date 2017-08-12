@@ -52,3 +52,9 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
     target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
     target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
 [% } %]
+
+add_custom_command(
+        TARGET [= config.name =] POST_BUILD
+        COMMAND cp -R
+                ${CMAKE_SOURCE_DIR}/resources
+                ${CMAKE_CURRENT_BINARY_DIR}/resources)
