@@ -2,7 +2,7 @@
 "use strict"
 
 const utils = require("./utils.js");
-const packResources = require("./pack_resources.js");
+const pack_resources = require("./pack_resources.js");
 const path = require("path");
 const fs = require("fs");
 
@@ -27,4 +27,4 @@ const templateName = opt.argv[0];
 const configOrder = opt.argv.slice(1);
 
 var params = utils.findParams(projectRoot, templateName, projectOutDir, configOrder, []);
-packResources.packResources(params);
+pack_resources.packResources(params);

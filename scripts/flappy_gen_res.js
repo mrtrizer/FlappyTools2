@@ -2,7 +2,7 @@
 "use strict"
 
 const utils = require("./utils.js");
-const generateProject = require("./generate_resources.js");
+const generate_resources = require("./generate_resources.js");
 const path = require("path");
 const fs = require("fs");
 
@@ -27,4 +27,4 @@ const templateName = opt.argv[0];
 const configOrder = opt.argv.slice(1);
 
 var params = utils.findParams(projectRoot, templateName, projectOutDir, configOrder, []);
-generateProject.generateResources(params);
+generate_resources.generateResources(params);
