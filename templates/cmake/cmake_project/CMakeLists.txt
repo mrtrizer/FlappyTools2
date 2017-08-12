@@ -53,8 +53,10 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
     target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
 [% } %]
 
-add_custom_command(
-        TARGET [= config.name =] POST_BUILD
-        COMMAND cp -R
-                ${CMAKE_SOURCE_DIR}/resources
-                ${CMAKE_CURRENT_BINARY_DIR}/resources)
+if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
+    add_custom_command(
+            TARGET [= config.name =] POST_BUILD
+            COMMAND cp -R
+                    ${CMAKE_SOURCE_DIR}/resources
+                    ${CMAKE_CURRENT_BINARY_DIR}/resources)
+endif()
