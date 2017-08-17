@@ -37,7 +37,7 @@ module.exports.build = function(context) {
     call("make", context.targetOutDir);
 }
 
-module.exports.packRes = function (context, config, generator, resSrcDir, cacheDir) {
+function packRes (context, config, generator, resSrcDir, cacheDir) {
     const fse = context.require("fs-extra");
     const path = require("path");
 
@@ -47,5 +47,39 @@ module.exports.packRes = function (context, config, generator, resSrcDir, cacheD
 
         const outPath = path.join(context.targetOutDir, "resources", res.path);
         fse.copySync(res.fullPath, outPath);
+
+        var resInfo = {
+            "path" : res.path,
+            "type" : res.type
+        }
     }
+
+    return resInfo;
+}
+
+module.exports.packResources = function (context) {
+    const fse = context.require("fs-extra");
+    const path = context.require("path");
+    const res_utils = context.require("./res_utils.js");
+    const utils = context.require("./utils.js");
+
+    var resInfoList = [];
+
+    res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
+        var projectGenerator = utils.requireGeneratorScript(context.generatorPath);
+        var resInfo = packRes(context, config, generator, resSrcDir, cacheDir);
+        resInfoList.push(resInfo);
+    });
+
+    const outPath = path.join(context.targetOutDir, "resources", "res_list.json");
+
+    console.log("Saving resource list to " + outPath);
+
+    var resBaseData = {
+        "list" : resInfoList
+    }
+
+    fse.writeJsonSync(outPath, resBaseData, {
+        spaces: "  "
+    });
 }
