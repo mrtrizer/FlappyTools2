@@ -71,15 +71,21 @@ module.exports.packResources = function (context) {
         resInfoList.push(resInfo);
     });
 
-    const outPath = path.join(context.targetOutDir, "resources", "res_list.json");
 
-    console.log("Saving resource list to " + outPath);
 
     var resBaseData = {
         "list" : resInfoList
     }
 
+    const outDir = path.join(context.targetOutDir, "resources");
+
+    fse.mkdirsSync(outDir)
+
+    const outPath = path.join(context.targetOutDir, "resources", "res_list.json");
+
+    console.log("Saving resource list to " + outPath);
+
     fse.writeJsonSync(outPath, resBaseData, {
-        spaces: "  "
+        spaces: "    "
     });
 }
