@@ -41,20 +41,23 @@ function packRes (context, config, generator, resSrcDir, cacheDir) {
     const fse = context.require("fs-extra");
     const path = require("path");
 
-    var resList = generator.getResList(config, resSrcDir, cacheDir);
+    let resInfoList = [];
+    const resList = generator.getResList(config, resSrcDir, cacheDir);
     for (const i in resList) {
         const res = resList[i];
 
         const outPath = path.join(context.targetOutDir, "resources", res.path);
         fse.copySync(res.fullPath, outPath);
 
-        var resInfo = {
+        const resInfo = {
+            "name" : path.parse(res.path).name,
             "path" : res.path,
             "type" : res.type
         }
+        resInfoList.push(resInfo);
     }
 
-    return resInfo;
+    return resInfoList;
 }
 
 module.exports.packResources = function (context) {
@@ -66,12 +69,11 @@ module.exports.packResources = function (context) {
     var resInfoList = [];
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
-        var projectGenerator = utils.requireGeneratorScript(context.generatorPath);
-        var resInfo = packRes(context, config, generator, resSrcDir, cacheDir);
-        resInfoList.push(resInfo);
+        const projectGenerator = utils.requireGeneratorScript(context.generatorPath);
+        const resInfoSubList = packRes(context, config, generator, resSrcDir, cacheDir);
+        console.log("resInfoSubList" + JSON.stringify(resInfoSubList));
+        resInfoList = resInfoList.concat(resInfoSubList);
     });
-
-
 
     var resBaseData = {
         "list" : resInfoList

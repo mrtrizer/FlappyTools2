@@ -6,6 +6,7 @@ const path = require("path");
 const scriptPath = path.dirname(require.main.filename);
 const flappyGenPath = path.join(scriptPath, "flappy_gen.js");
 const flappyGenResPath = path.join(scriptPath, "flappy_gen_res.js");
+const flappyPackResPath = path.join(scriptPath, "flappy_pack_res.js");
 const flappyInitPath = path.join(scriptPath, "flappy_init.js");
 const flappyBuildPath = path.join(scriptPath, "flappy_build.js");
 
@@ -24,6 +25,7 @@ function printHelp() {
     console.log("\tflappy <command name> --help - For details about command");
     console.log("\tflappy gen <template name> - Generate project for current project dir");
     console.log("\tflappy gen-res - Generate resources");
+    console.log("\tflappy pack-res - Pack resources for target");
     console.log("\tflappy build <template name> - Generate project for current project dir and build it.");
     console.log("\tflappy init <template name> <project name> - Generate flappy project with template and project name. "
                 + "New project folder with will be created");
@@ -41,6 +43,9 @@ switch (argv[0]) {
     case "gen-res":
         call(flappyGenResPath, argv.slice(1));
     break;
+    case "pack-res":
+        call(flappyPackResPath, argv.slice(1));
+    break;
     case "init":
         call(flappyInitPath, argv.slice(1));
     break;
@@ -49,6 +54,6 @@ switch (argv[0]) {
     break;
     case "--help":
     case "-h":
-       printHelp(); 
+       printHelp();
     break;
 }

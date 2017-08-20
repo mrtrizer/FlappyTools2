@@ -66,6 +66,7 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
             if ((generator.type == resConfig.type) || (generator.type == "*"))
                 return generator;
         }
+        console.log("ERROR: Can't find generator for " + resConfig.type);
         return null;
     }
 
