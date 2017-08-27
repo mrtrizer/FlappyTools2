@@ -60,5 +60,5 @@ if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
             TARGET [= config.name =] POST_BUILD
             COMMAND cp -R
                     ${CMAKE_SOURCE_DIR}/resources
-                    ${CMAKE_CURRENT_BINARY_DIR}/resources)
+                    ${CMAKE_CURRENT_BINARY_DIR}/)
 endif()
