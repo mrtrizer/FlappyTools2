@@ -28,13 +28,18 @@ module.exports.generate = function(context) {
 }
 
 module.exports.build = function(context) {
+    const path = require("path");
+    const efs = context.require("fs-extra")
+
     function call(command, cwd) {
         const childProcess = require("child_process");
         childProcess.execSync(command, {"cwd": cwd, stdio: "inherit"});
     }
-    console.log("Project out dir: " + context.targetOutDir);
-    call("cmake -G \"Unix Makefiles\"", context.targetOutDir);
-    call("make", context.targetOutDir);
+    const buildDir = path.join(context.targetOutDir, "build");
+    console.log("Build dir: " + buildDir);
+    efs.mkdirsSync(buildDir);
+    call("cmake -G \"Unix Makefiles\" ..", buildDir);
+    call("make", buildDir);
 }
 
 function packRes (context, config, generator, resSrcDir, cacheDir) {
