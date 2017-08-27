@@ -30,7 +30,7 @@ module.exports.generate = function(context) {
 module.exports.build = function(context) {
     function call(command, cwd) {
         const childProcess = require("child_process");
-        console.log(childProcess.execSync(command, {"cwd": cwd}));
+        childProcess.execSync(command, {"cwd": cwd, stdio: "inherit"});
     }
     console.log("Project out dir: " + context.targetOutDir);
     call("cmake -G \"Unix Makefiles\"", context.targetOutDir);
