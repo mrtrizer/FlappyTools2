@@ -55,11 +55,10 @@ function packRes (context, config, generator, resSrcDir, cacheDir) {
         fse.copySync(res.fullPath, outPath);
 
         const resInfo = {
-            "name" : path.parse(res.path).name,
             "path" : res.path,
             "type" : res.type
         }
-        resInfoList.push(resInfo);
+        resInfoList[res.path] = resInfo;
     }
 
     return resInfoList;
@@ -71,28 +70,23 @@ module.exports.packResources = function (context) {
     const res_utils = context.require("./res_utils.js");
     const utils = context.require("./utils.js");
 
-    var resInfoList = [];
+    var fileInfoMap = [];
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
         const projectGenerator = utils.requireGeneratorScript(context.generatorPath);
-        const resInfoSubList = packRes(context, config, generator, resSrcDir, cacheDir);
-        console.log("resInfoSubList" + JSON.stringify(resInfoSubList));
-        resInfoList = resInfoList.concat(resInfoSubList);
+        const fileInfoSubList = packRes(context, config, generator, resSrcDir, cacheDir);
+        fileInfoMap = Object.assign({}, fileInfoMap, fileInfoSubList);
     });
-
-    var resBaseData = {
-        "list" : resInfoList
-    }
 
     const outDir = path.join(context.targetOutDir, "resources");
-
     fse.mkdirsSync(outDir)
 
-    const outPath = path.join(context.targetOutDir, "resources", "res_list.json");
+    const fileListPath = path.join(outDir, "file_list.json");
 
-    console.log("Saving resource list to " + outPath);
+    fse.writeJsonSync(fileListPath, fileInfoMap, { spaces: "    " });
 
-    fse.writeJsonSync(outPath, resBaseData, {
-        spaces: "    "
-    });
+    const cacheDir = res_utils.getCacheDir(context);
+    const cacheMetaSourcePath = path.join(cacheDir, "cache_meta.json");
+    const cacheMetaOurPath = path.join(outDir, "cache_meta.json");
+    fse.copySync(cacheMetaSourcePath, cacheMetaOurPath);
 }

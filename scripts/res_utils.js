@@ -15,8 +15,9 @@ function getListOfResConfigs(resSrcDir) {
             console.log(resConfigPath)
             try {
                 const configData = fs.readFileSync(resConfigPath, "utf8");
-                const flappyConfig = JSON.parse(configData);
-                resConfigList.push(flappyConfig);
+                const resConfig = JSON.parse(configData);
+                resConfig["_name_"] = path.relative(resSrcDir, resConfigPath);
+                resConfigList.push(resConfig);
             } catch (e) {
                 console.log(e.message);
             }
@@ -61,13 +62,17 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     const fse = require('fs-extra');
 
     const findGenerator = function (resConfig, resSrcDir, cacheSubDir) {
+        let resultGenerator = null;
         for (const i in generatorList) {
             const generator = generatorList[i];
-            if ((generator.type == resConfig.type) || (generator.type == "*"))
-                return generator;
+            if (generator.type == resConfig.type)
+                resultGenerator = generator;
+            if ((generator.type == "*") && (resultGenerator == null))
+                resultGenerator = generator;
         }
-        console.log("ERROR: Can't find generator for " + resConfig.type);
-        return null;
+        if (resultGenerator == null)
+            console.log("ERROR: Can't find generator for " + resConfig.type);
+        return resultGenerator;
     }
 
     const cacheSubDir = path.join(cacheDir, context.config.name);
@@ -83,10 +88,14 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     }
 }
 
+function getCacheDir(context) {
+    return path.join(context.projectRoot, "flappy_cache");
+}
+
 function iterateResourcesRecursive(context, callback) {
     const modules = require("./modules.js");
 
-    const cacheDir = path.join(context.projectRoot, "flappy_cache");
+    const cacheDir = getCacheDir(context);
     const generatorList = getListOfGenerators(context);
     iterateResourcesInContext(context, generatorList, cacheDir, callback);
 
@@ -100,4 +109,5 @@ function iterateResourcesRecursive(context, callback) {
 
 module.exports.getListOfGenerators = getListOfGenerators;
 module.exports.getListOfResConfigs = getListOfResConfigs;
+module.exports.getCacheDir = getCacheDir;
 module.exports.iterateResourcesRecursive = iterateResourcesRecursive;
