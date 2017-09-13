@@ -16,7 +16,13 @@ function getListOfResConfigs(resSrcDir) {
             try {
                 const configData = fs.readFileSync(resConfigPath, "utf8");
                 const resConfig = JSON.parse(configData);
-                resConfig["_name_"] = path.relative(resSrcDir, resConfigPath);
+                const metaPath = path.relative(resSrcDir, resConfigPath);
+                resConfig["_meta_path_"] = metaPath;
+                const metaDir = path.parse(metaPath).dir;
+                resConfig["_meta_dir_"] = metaDir;
+                const metaName = path.join(metaDir, path.parse(metaPath).name);
+                resConfig["_meta_name_"] = metaName;
+
                 resConfigList.push(resConfig);
             } catch (e) {
                 console.log(e.message);
@@ -76,12 +82,12 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     }
 
     const cacheSubDir = path.join(cacheDir, context.config.name);
-    fse.mkdirsSync(cacheSubDir);
     const resSrcDir = path.join(context.projectRoot, "res_src");
 
     const resConfigList = getListOfResConfigs(resSrcDir);
     for (const i in resConfigList) {
         const resConfig = resConfigList[i];
+        const metaFileDir = resConfig["_meta_dir_"];
         const generator = findGenerator(resConfig, resSrcDir, cacheSubDir);
         if (generator != null)
             callback(resConfig, generator, resSrcDir, cacheSubDir);

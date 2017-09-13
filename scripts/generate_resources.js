@@ -12,7 +12,7 @@ function generateResources(params) {
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
         const cacheMeta = generator.generate(context, config, resSrcDir, cacheDir);
-        const name = path.parse(config["_name_"]).name;
+        const name = config["_meta_name_"];
         cacheMetaMap[name] = cacheMeta;
     });
 
