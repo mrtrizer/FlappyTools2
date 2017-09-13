@@ -18,7 +18,8 @@ function jsonIterate (jsonObj, outObject) {
 };
 
 function parseJson(fileList, extraParams) {
-    let fs = require('fs');
+    const fs = require("fs");
+    const logger = require("./logger.js")
 
     let outParams = {};
     fileList.forEach(function (val, index, array) {
@@ -28,8 +29,8 @@ function parseJson(fileList, extraParams) {
             // recursive iterate json tree
             jsonIterate(jsonObj, outParams);
         } catch (e) {
-            console.log("ERROR: Can't read config " + val);
-            console.log(e.message);
+            logger.loge("Can't read config " + val);
+            logger.loge(e.message);
             return;
         }
     });

@@ -12,7 +12,6 @@ function getListOfResConfigs(resSrcDir) {
     for (const i in resConfigPathList) {
         const resConfigPath = resConfigPathList[i];
         if (path.extname(resConfigPath) == ".meta") {
-            console.log(resConfigPath)
             try {
                 const configData = fs.readFileSync(resConfigPath, "utf8");
                 const resConfig = JSON.parse(configData);
@@ -25,7 +24,8 @@ function getListOfResConfigs(resSrcDir) {
 
                 resConfigList.push(resConfig);
             } catch (e) {
-                console.log(e.message);
+                const logger = require("./logger.js");
+                logger.loge(e.message);
             }
         }
     }
@@ -35,14 +35,12 @@ function getListOfResConfigs(resSrcDir) {
 function findGeneratorsInContext(context) {
     let generatorScripts = new Array();
     const generatorsDirPath = path.join(context.projectRoot, "generators");
-    console.log(generatorsDirPath);
     if (fs.existsSync(generatorsDirPath)) {
         const content = utils.readDirs(generatorsDirPath);
         const generatorFiles = content.filter(item => path.extname(item) == ".js");
 
         for (const i in generatorFiles) {
             const generatorFile = generatorFiles[i];
-            console.log(generatorFile);
             const generatorScript = require(generatorFile);
             generatorScripts.push(generatorScript);
         }
@@ -68,6 +66,7 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     const fse = require('fs-extra');
 
     const findGenerator = function (resConfig, resSrcDir, cacheSubDir) {
+        const logger = require("./logger.js");
         let resultGenerator = null;
         for (const i in generatorList) {
             const generator = generatorList[i];
@@ -76,8 +75,9 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
             if ((generator.type == "*") && (resultGenerator == null))
                 resultGenerator = generator;
         }
-        if (resultGenerator == null)
-            console.log("ERROR: Can't find generator for " + resConfig.type);
+        if (resultGenerator == null) {
+            logger.loge("Can't find generator for " + resConfig.type);
+        }
         return resultGenerator;
     }
 

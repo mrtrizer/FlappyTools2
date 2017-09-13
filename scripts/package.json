@@ -4,6 +4,7 @@
     "dependencies": {
         "fs-path": "*",
         "node-getopt": "*",
-        "fs-extra": "*"
+        "fs-extra": "*",
+        "colors": "*"
     }
 }

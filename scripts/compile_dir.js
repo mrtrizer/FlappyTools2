@@ -26,7 +26,6 @@ function saveFile(path, data) {
 }
 
 function compileDir(config, templatePath, outPath) {
-    console.log(templatePath);
     const fs = require("fs");
     const path = require("path");
 

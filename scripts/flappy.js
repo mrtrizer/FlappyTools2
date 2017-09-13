@@ -11,12 +11,8 @@ const flappyInitPath = path.join(scriptPath, "flappy_init.js");
 const flappyBuildPath = path.join(scriptPath, "flappy_build.js");
 
 function call(command, argv) {
-    childProcess.execFile(command, argv, (error, stdout, stderr) => {
-        console.log(stdout);
-        console.log(stderr);
-        if (error != null)
-            throw error;
-    });
+    const childProcess = require("child_process");
+    childProcess.execSync(command, {stdio: "inherit"});
 }
 
 function printHelp() {
@@ -38,19 +34,19 @@ if (argv.length < 1)
 
 switch (argv[0]) {
     case "gen":
-        call(flappyGenPath, argv.slice(1));
+        call(flappyGenPath + " " + argv.slice(1).join(' '));
     break;
     case "gen-res":
-        call(flappyGenResPath, argv.slice(1));
+        call(flappyGenResPath + " " + argv.slice(1).join(' '));
     break;
     case "pack-res":
-        call(flappyPackResPath, argv.slice(1));
+        call(flappyPackResPath + " " + argv.slice(1).join(' '));
     break;
     case "init":
-        call(flappyInitPath, argv.slice(1));
+        call(flappyInitPath + " " + argv.slice(1).join(' '));
     break;
     case "build":
-        call(flappyBuildPath, argv.slice(1));
+        call(flappyBuildPath + " " + argv.slice(1).join(' '));
     break;
     case "--help":
     case "-h":
