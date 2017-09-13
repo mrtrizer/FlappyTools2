@@ -36,7 +36,7 @@ module.exports.build = function(context) {
         childProcess.execSync(command, {"cwd": cwd, stdio: "inherit"});
     }
     const buildDir = path.join(context.targetOutDir, "build");
-    const logger = require("./logger.js");
+    const logger = context.require("./logger.js");
     logger.logi("Build dir: " + buildDir);
     efs.mkdirsSync(buildDir);
     call("cmake -G \"Unix Makefiles\" ..", buildDir);
