@@ -18,6 +18,8 @@ function generateResources(params) {
 
     const cacheMetaPath = path.join(res_utils.getCacheDir(context), "cache_meta.json");
 
+    fse.mkdirsSync(res_utils.getCacheDir(context));
+
     fse.writeJsonSync(cacheMetaPath, cacheMetaMap, {
         spaces: "    "
     });
