@@ -30,12 +30,29 @@ function getListOfResConfigs(resSrcDir) {
     return resConfigList;
 }
 
+function installNodeModules(generatorsDirPath) {
+    if (!fs.existsSync(generatorsDirPath))
+        return;
+    const content = utils.readDirs(generatorsDirPath);
+    const packageFiles = content.filter(item =>
+        path.parse(item).base == "package.json" && item.indexOf("node_modules") == -1);
+    for (const i in packageFiles) {
+        const packageFile = packageFiles[i];
+        const packageDir = path.parse(packageFile).dir;
+        const childProcess = require("child_process");
+        const npmCommand = "npm install"
+        childProcess.execSync(npmCommand, {"cwd": packageDir, stdio: "inherit"});
+    }
+}
+
 function findGeneratorsInContext(context) {
     let generatorScripts = new Array();
     const generatorsDirPath = path.join(context.projectRoot, "generators");
+    installNodeModules(generatorsDirPath);
     if (fs.existsSync(generatorsDirPath)) {
         const content = utils.readDirs(generatorsDirPath);
-        const generatorFiles = content.filter(item => path.extname(item) == ".js" && item.indexOf("node_modules") == -1);
+        const generatorFiles = content.filter(item =>
+            path.extname(item) == ".js" && item.indexOf("node_modules") == -1);
 
         for (const i in generatorFiles) {
             const generatorFile = generatorFiles[i];
