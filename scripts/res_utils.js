@@ -16,11 +16,9 @@ function getListOfResConfigs(resSrcDir) {
                 const configData = fs.readFileSync(resConfigPath, "utf8");
                 const resConfig = JSON.parse(configData);
                 const metaPath = path.relative(resSrcDir, resConfigPath);
-                resConfig["_meta_path_"] = metaPath;
                 const metaDir = path.parse(metaPath).dir;
-                resConfig["_meta_dir_"] = metaDir;
                 const metaName = path.join(metaDir, path.parse(metaPath).name);
-                resConfig["_meta_name_"] = metaName;
+                resConfig["name"] = metaName;
 
                 resConfigList.push(resConfig);
             } catch (e) {
@@ -37,7 +35,7 @@ function findGeneratorsInContext(context) {
     const generatorsDirPath = path.join(context.projectRoot, "generators");
     if (fs.existsSync(generatorsDirPath)) {
         const content = utils.readDirs(generatorsDirPath);
-        const generatorFiles = content.filter(item => path.extname(item) == ".js");
+        const generatorFiles = content.filter(item => path.extname(item) == ".js" && item.indexOf("node_modules") == -1);
 
         for (const i in generatorFiles) {
             const generatorFile = generatorFiles[i];
@@ -87,7 +85,6 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     const resConfigList = getListOfResConfigs(resSrcDir);
     for (const i in resConfigList) {
         const resConfig = resConfigList[i];
-        const metaFileDir = resConfig["_meta_dir_"];
         const generator = findGenerator(resConfig, resSrcDir, cacheSubDir);
         if (generator != null)
             callback(resConfig, generator, resSrcDir, cacheSubDir);

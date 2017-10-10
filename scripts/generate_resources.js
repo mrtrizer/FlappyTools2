@@ -11,9 +11,12 @@ function generateResources(params) {
     let cacheMetaMap = {};
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
-        const cacheMeta = generator.generate(context, config, resSrcDir, cacheDir);
-        const name = config["_meta_name_"];
-        cacheMetaMap[name] = cacheMeta;
+        const cacheMetaArray = generator.generate(context, config, resSrcDir, cacheDir);
+        for (const i in cacheMetaArray) {
+            const cacheMetaItem = cacheMetaArray[i];
+            const name = cacheMetaItem["name"];
+            cacheMetaMap[name] = cacheMetaItem;
+        }
     });
 
     const cacheMetaPath = path.join(res_utils.getCacheDir(context), "cache_meta.json");
