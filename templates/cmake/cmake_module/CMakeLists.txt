@@ -14,7 +14,7 @@ add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
 [% } %]
 
-target_include_directories ([= config.name =] PUBLIC 
+target_include_directories ([= config.name =] PUBLIC
 [% for (let i in config.cxx.header_dirs) { %]
      "[= normalize(config.cxx.header_dirs[i]) =]"
 [% } %]
@@ -36,4 +36,15 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
     find_package([= config.cmake.packages[i].name =] REQUIRED)
     target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
     target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
+[% } %]
+
+
+[% if (config.cxx.libs != undefined) { %]
+    [% if (config.cxx.libs.length > 0) {%]
+    	target_link_libraries([= config.name =]
+    	[% for (let i in config.cxx.libs) { %]
+    	     "[= normalize(config.cxx.libs[i]) =]"
+    	[% } %]
+    	)
+    [% } %]
 [% } %]

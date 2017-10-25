@@ -62,3 +62,13 @@ if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
                     ${CMAKE_SOURCE_DIR}/resources
                     ${CMAKE_CURRENT_BINARY_DIR}/)
 endif()
+
+[% if (config.cxx.libs != undefined) { %]
+    [% if (config.cxx.libs.length > 0) {%]
+    	target_link_libraries([= config.name =]
+    	[% for (let i in config.cxx.libs) { %]
+    	     "[= normalize(config.cxx.libs[i]) =]"
+    	[% } %]
+    	)
+    [% } %]
+[% } %]
