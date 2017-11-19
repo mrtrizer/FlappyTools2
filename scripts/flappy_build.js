@@ -3,6 +3,8 @@
 
 const utils = require("./utils.js");
 const buildProject = require("./build_project.js");
+const generateResources = require("./generate_resources.js");
+const packResources = require("./pack_resources.js");
 
 const opt = require('node-getopt').create([
     ['h', 'help', 'Display this help.'],
@@ -26,4 +28,6 @@ const templateName = opt.argv[0];
 const configOrder = opt.argv.slice(1);
 
 var params = utils.findParams(projectRoot, templateName, projectOutDir, configOrder, []);
+generateResources.generateResources(params);
+packResources.packResources(params);
 buildProject.buildProject(params);
