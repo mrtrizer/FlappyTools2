@@ -102,37 +102,37 @@ function readDirs(root) {
     return outList;
 }
 
-function mergeConfigs(projectRoot, generatorPath, defaultConfigFileName, configOrder) {
+function mergeConfigs(moduleRoot, generatorPath, defaultConfigFileName, configOrder) {
     const utils = require("./utils.js");
     const path = require("path");
 
     const defaultConfig = utils.absolutePath(generatorPath, defaultConfigFileName); // template default config
-    const generalConfig = utils.absolutePath(projectRoot, "flappy_conf/general.json"); // project default config
+    const generalConfig = utils.absolutePath(moduleRoot, "flappy_conf/general.json"); // project default config
 
     let fullConfigOrder = [defaultConfig, generalConfig];
 
     for (let i in configOrder) {
         const config = configOrder[i];
 
-        fullConfigOrder.push(path.join(projectRoot, "flappy_conf", config + ".json"));
+        fullConfigOrder.push(path.join(moduleRoot, "flappy_conf", config + ".json"));
     }
 
     return fullConfigOrder;
 }
 
-function normalize(path, projectRoot) {
+function normalize(path, moduleRoot) {
     const utils = require("./utils.js");
-    return utils.absolutePath(projectRoot, path);
+    return utils.absolutePath(moduleRoot, path);
 }
 
 // Check if file excluded
-function isExcluded(projectRoot, absolutePath, excludes) {
+function isExcluded(moduleRoot, absolutePath, excludes) {
     const path = require("path");
 
     const normalizedPath = path.normalize(absolutePath);
     for (let excludedN in excludes) {
         const excluded = excludes[excludedN];
-        const excludeAbsolute = path.join(projectRoot, excluded);
+        const excludeAbsolute = path.join(moduleRoot, excluded);
         const excludeNormalized = path.normalize(excludeAbsolute);
         if (normalizedPath.indexOf(excludeAbsolute) != -1)
             return true;
@@ -141,18 +141,18 @@ function isExcluded(projectRoot, absolutePath, excludes) {
 }
 
 // Returns source file list considering excludes
-function sourceList(projectRoot, sourceDirs, excludes) {
+function sourceList(moduleRoot, sourceDirs, excludes) {
     const fs = require("fs");
     const path = require("path");
 
     let outList = [];
     for (let sourceDirN in sourceDirs) {
         const sourceDir = sourceDirs[sourceDirN];
-        const absoluteSourceDir = path.join(projectRoot, sourceDir)
+        const absoluteSourceDir = path.join(moduleRoot, sourceDir)
         const fileList = readDirs(absoluteSourceDir);
         for (let filePathN in fileList) {
             const filePath = fileList[filePathN];
-            if (!isExcluded(projectRoot, filePath, excludes))
+            if (!isExcluded(moduleRoot, filePath, excludes))
                 outList.push(filePath);
         }
     }
@@ -165,12 +165,12 @@ function findFlappyScript(name) {
     return path.join(scriptPath, name);
 }
 
-function createContext(context, projectRoot, defaultConfigFileName) {
+function createContext(context, moduleRoot, defaultConfigFileName) {
     const compile_dir = require("./compile_dir.js");
     const merge_config = require("./merge_config.js");
 
     const configOrder = mergeConfigs(
-        projectRoot,
+        moduleRoot,
         context.generatorPath,
         defaultConfigFileName,
         context.configOrder
@@ -179,12 +179,13 @@ function createContext(context, projectRoot, defaultConfigFileName) {
     const config = merge_config.parseJson(configOrder, context.extraParams);
 
     const newContext = {
-        "projectRoot": projectRoot,
+        "projectRoot": context.projectRoot,
+        "moduleRoot": moduleRoot,
         "config": config,
         "compileDir": compile_dir.compileDir,
         "generatorPath": context.generatorPath,
         "targetOutDir": context.targetOutDir,
-        "normalize": path => normalize(path, projectRoot),
+        "normalize": path => normalize(path, moduleRoot),
         "sourceList": sourceList,
         "configOrder": context.configOrder,
         "extraParams": context.extraParams,
@@ -195,6 +196,33 @@ function createContext(context, projectRoot, defaultConfigFileName) {
     return newContext;
 }
 
+class TimestampCache {
+    constructor(context) {
+        const path = require('path');
+        const fse = require('fs-extra');
+        this.timestampCachePath = path.join(context.projectRoot, "flappy_cache/timestamps.json");
+        try {
+            this.timestamps = fse.readJsonSync(this.timestampCachePath);
+        } catch (e) {
+            this.timestamps = {};
+        }
+    }
+
+    isChanged(path) {
+        const fs = require('fs');
+        const fse = require('fs-extra');
+        const lastModifTime = Math.floor(fs.statSync(path).mtime);
+        if (!(path in this.timestamps) || this.timestamps[path] != lastModifTime) {
+            console.log(path + " - Changed : " + lastModifTime);
+            this.timestamps[path] = lastModifTime;
+            fse.outputJsonSync(this.timestampCachePath, this.timestamps, {spaces: 4});
+            return true;
+        }
+        return false;
+    }
+}
+
+module.exports.TimestampCache = TimestampCache;
 module.exports.defaultConfigFileName = "default.json";
 module.exports.absolutePath = absolutePath;
 module.exports.findParams = findParams;

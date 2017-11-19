@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.0.2)
 set(CMAKE_BUILD_TYPE Debug)
 
 # List all sources from all presented sources excluding exclude pathes
-[% let normalizedSources = sourceList(projectRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
+[% let normalizedSources = sourceList(moduleRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
 [% for (let i in normalizedSources) { %]
     list(APPEND [= config.name =]_SOURCES "[= normalizedSources[i] =]")
 [% } %]

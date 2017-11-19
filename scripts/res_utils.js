@@ -30,26 +30,27 @@ function getListOfResConfigs(resSrcDir) {
     return resConfigList;
 }
 
-function installNodeModules(generatorsDirPath) {
-    if (!fs.existsSync(generatorsDirPath))
-        return;
+function installNodeModules(context, generatorsDirPath) {
     const content = utils.readDirs(generatorsDirPath);
     const packageFiles = content.filter(item =>
         path.parse(item).base == "package.json" && item.indexOf("node_modules") == -1);
+    let timestampCache = new utils.TimestampCache(context);
     for (const i in packageFiles) {
         const packageFile = packageFiles[i];
-        const packageDir = path.parse(packageFile).dir;
-        const childProcess = require("child_process");
-        const npmCommand = "npm install"
-        childProcess.execSync(npmCommand, {"cwd": packageDir, stdio: "inherit"});
+        if (timestampCache.isChanged(packageFile)) {
+            const packageDir = path.parse(packageFile).dir;
+            const childProcess = require("child_process");
+            const npmCommand = "npm install"
+            childProcess.execSync(npmCommand, {"cwd": packageDir, stdio: "inherit"});
+        }
     }
 }
 
 function findGeneratorsInContext(context) {
     let generatorScripts = new Array();
-    const generatorsDirPath = path.join(context.projectRoot, "generators");
-    installNodeModules(generatorsDirPath);
+    const generatorsDirPath = path.join(context.moduleRoot, "generators");
     if (fs.existsSync(generatorsDirPath)) {
+        installNodeModules(context, generatorsDirPath);
         const content = utils.readDirs(generatorsDirPath);
         const generatorFiles = content.filter(item =>
             path.extname(item) == ".js" && item.indexOf("node_modules") == -1);
@@ -97,7 +98,7 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
     }
 
     const cacheSubDir = path.join(cacheDir, context.config.name);
-    const resSrcDir = path.join(context.projectRoot, "res_src");
+    const resSrcDir = path.join(context.moduleRoot, "res_src");
 
     const resConfigList = getListOfResConfigs(resSrcDir);
     for (const i in resConfigList) {
@@ -109,7 +110,7 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
 }
 
 function getCacheDir(context) {
-    return path.join(context.projectRoot, "flappy_cache");
+    return path.join(context.moduleRoot, "flappy_cache");
 }
 
 function iterateResourcesRecursive(context, callback) {

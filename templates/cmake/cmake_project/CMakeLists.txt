@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
   EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    [= projectRoot =]/compile_commands.json
+    [= moduleRoot =]/compile_commands.json
   )
 ENDIF()
 
@@ -18,7 +18,7 @@ ENDIF()
 [% } %]
 
 # List all sources from all presented sources excluding exclude pathes
-[% const normalizedSources = sourceList(projectRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
+[% const normalizedSources = sourceList(moduleRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
 [% for (let i in normalizedSources) { %]
     list(APPEND [= config.name =]_SOURCES "[= normalizedSources[i] =]")
 [% } %]
