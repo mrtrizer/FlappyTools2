@@ -4,12 +4,25 @@ const defaultConfigFileNameSubmodule = "default_submodule.json"
 
 function findModules(context) {
     const path = require("path");
+    const fs = require("fs");
     const utils = require(context.findFlappyScript("utils.js"));
 
     let modules = [];
     for (let i in context.config.modules) {
         const module = context.config.modules[i];
-        const absolutePath = utils.absolutePath(context.moduleRoot, module.path);
+        let absolutePath = "";
+        if (module.path.trim().indexOf("^/") == 0) {
+            const modulePath = module.path.replace("^/", "");
+            absolutePath = utils.absolutePath(context.projectRoot, "flappy_cache", context.config.name, modulePath);
+            // This related only to generated modules, which can be not created
+            // at moment of resource generation
+            if (!fs.existsSync(absolutePath))
+                continue;
+        } else if (path.isAbsolute(module.path)) {
+            absolutePath = module.path;
+        } else {
+            absolutePath = utils.absolutePath(context.moduleRoot, module.path);
+        }
         const moduleContext = context.createContext( context, absolutePath, defaultConfigFileNameSubmodule);
         modules.push(moduleContext);
     }
