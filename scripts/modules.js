@@ -14,8 +14,6 @@ function findModules(context) {
         if (module.path.trim().indexOf("^/") == 0) {
             const modulePath = module.path.replace("^/", "");
             absolutePath = utils.absolutePath(context.projectRoot, "flappy_cache", context.config.name, modulePath);
-            // This related only to generated modules, which can be not created
-            // at moment of resource generation
             if (!fs.existsSync(absolutePath))
                 continue;
         } else if (path.isAbsolute(module.path)) {

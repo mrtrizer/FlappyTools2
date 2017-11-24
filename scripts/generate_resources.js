@@ -12,7 +12,7 @@ function generateResources(params) {
 
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
         fse.mkdirsSync(cacheDir);
-        const cacheMetaArray = generator.generate(context, config, resSrcDir, cacheDir);
+        const cacheMetaArray = generator.script.generate(context, generator.context, config, resSrcDir, cacheDir);
         for (const i in cacheMetaArray) {
             const cacheMetaItem = cacheMetaArray[i];
             const name = cacheMetaItem["name"];

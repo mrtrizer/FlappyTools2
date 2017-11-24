@@ -48,7 +48,7 @@ function packRes (context, config, generator, resSrcDir, cacheDir) {
     const path = require("path");
 
     let resInfoList = [];
-    const resList = generator.getResList(config, resSrcDir, cacheDir);
+    const resList = generator.script.getResList(config, resSrcDir, cacheDir);
     for (const i in resList) {
         const res = resList[i];
 

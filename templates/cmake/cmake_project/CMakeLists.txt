@@ -18,7 +18,7 @@ ENDIF()
 [% } %]
 
 # List all sources from all presented sources excluding exclude pathes
-[% const normalizedSources = sourceList(moduleRoot, config.cxx.src_dirs, config.cxx.src_exclude); %]
+[% const normalizedSources = sourceList(config.cxx.src_dirs, config.cxx.src_exclude); %]
 [% for (let i in normalizedSources) { %]
     list(APPEND [= config.name =]_SOURCES "[= normalizedSources[i] =]")
 [% } %]

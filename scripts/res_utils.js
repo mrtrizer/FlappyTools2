@@ -58,7 +58,10 @@ function findGeneratorsInContext(context) {
         for (const i in generatorFiles) {
             const generatorFile = generatorFiles[i];
             const generatorScript = require(generatorFile);
-            generatorScripts.push(generatorScript);
+            generatorScripts.push({
+                "context": context,
+                "script": generatorScript
+            });
         }
     }
     return generatorScripts;
@@ -86,9 +89,9 @@ function iterateResourcesInContext(context, generatorList, cacheDir, callback) {
         let resultGenerator = null;
         for (const i in generatorList) {
             const generator = generatorList[i];
-            if (generator.type == resConfig.type)
+            if (generator.script.type == resConfig.type)
                 resultGenerator = generator;
-            if ((generator.type == "*") && (resultGenerator == null))
+            if ((generator.script.type == "*") && (resultGenerator == null))
                 resultGenerator = generator;
         }
         if (resultGenerator == null) {

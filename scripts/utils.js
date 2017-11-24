@@ -89,6 +89,8 @@ function readDirs(root) {
     const path = require("path");
 
     let outList = [];
+    if (!fs.existsSync(root))
+        return outList;
     const fileList = fs.readdirSync(root);
     for (let filePathN in fileList) {
         const filePath = fileList[filePathN];
@@ -120,20 +122,27 @@ function mergeConfigs(moduleRoot, generatorPath, defaultConfigFileName, configOr
     return fullConfigOrder;
 }
 
-function normalize(path, moduleRoot) {
+function normalize(context, pathStr) {
     const utils = require("./utils.js");
-    return utils.absolutePath(moduleRoot, path);
+    const path = require("path");
+    if (pathStr.trim().indexOf("^/") == 0) {
+        const cacheRelativePath = pathStr.replace("^/", "");
+        return utils.absolutePath(context.projectRoot, "flappy_cache", context.config.name, cacheRelativePath);
+    } else if (path.isAbsolute(pathStr)) {
+        return pathStr;
+    } else {
+        return utils.absolutePath(context.moduleRoot, pathStr);
+    }
 }
 
 // Check if file excluded
-function isExcluded(moduleRoot, absolutePath, excludes) {
+function isExcluded(context, absolutePath, excludes) {
     const path = require("path");
 
     const normalizedPath = path.normalize(absolutePath);
     for (let excludedN in excludes) {
         const excluded = excludes[excludedN];
-        const excludeAbsolute = path.join(moduleRoot, excluded);
-        const excludeNormalized = path.normalize(excludeAbsolute);
+        const excludeAbsolute = normalize(context, excluded);
         if (normalizedPath.indexOf(excludeAbsolute) != -1)
             return true;
     }
@@ -141,18 +150,18 @@ function isExcluded(moduleRoot, absolutePath, excludes) {
 }
 
 // Returns source file list considering excludes
-function sourceList(moduleRoot, sourceDirs, excludes) {
+function sourceList(context, sourceDirs, excludes) {
     const fs = require("fs");
     const path = require("path");
 
     let outList = [];
     for (let sourceDirN in sourceDirs) {
         const sourceDir = sourceDirs[sourceDirN];
-        const absoluteSourceDir = path.join(moduleRoot, sourceDir)
+        const absoluteSourceDir = normalize(context, sourceDir);
         const fileList = readDirs(absoluteSourceDir);
         for (let filePathN in fileList) {
             const filePath = fileList[filePathN];
-            if (!isExcluded(moduleRoot, filePath, excludes))
+            if (!isExcluded(context, filePath, excludes))
                 outList.push(filePath);
         }
     }
@@ -185,14 +194,14 @@ function createContext(context, moduleRoot, defaultConfigFileName) {
         "compileDir": compile_dir.compileDir,
         "generatorPath": context.generatorPath,
         "targetOutDir": context.targetOutDir,
-        "normalize": path => normalize(path, moduleRoot),
-        "sourceList": sourceList,
         "configOrder": context.configOrder,
         "extraParams": context.extraParams,
         "findFlappyScript": findFlappyScript,
         "require": require,
         "createContext": createContext
     };
+    newContext["normalize"] = pathStr => normalize(newContext, pathStr);
+    newContext["sourceList"] = (sourceDirs, excludes) => sourceList(newContext, sourceDirs, excludes);
     return newContext;
 }
 
