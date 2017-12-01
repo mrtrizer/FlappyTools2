@@ -3,28 +3,35 @@
 
 module.exports.generate = function(context) {
     const path = require("path");
-    const utils = require(context.findFlappyScript("utils.js"));
-    const modules = require(context.findFlappyScript("modules.js"));
+    const utils = context.require("./utils.js");
+    const modules = context.require("./modules.js");
+    const compileDir = context.require("./compile_dir.js");
 
     // Get pathes of project and module template folders
-    const moduleTemplatePath = path.join(context.generatorPath, "cmake_module");
-    const projectTemplatePath = path.join(context.generatorPath, "cmake_project");
+    const moduleTemplatePath = path.join(__dirname, "cmake_module");
+    const projectTemplatePath = path.join(__dirname, "cmake_project");
+
+    const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 
     // Iterate all modules in a project
     const allModulesContexts = modules.findAllModules(context);
+    let allModulesBuildContexts = [];
     for (let i in allModulesContexts) {
         const moduleContext = allModulesContexts[i];
-
+        console.log(moduleContext.configDir);
+        const moduleBuildContext = utils.createBuildContext(moduleContext, __dirname, "module_conf");
         // Include nessesary parameters to module context and compile the template
-        moduleContext.modules = modules.findModules(moduleContext);
-        moduleContext.outDir = utils.absolutePath(context.targetOutDir, moduleContext.config.name);
-        context.compileDir(moduleContext, moduleTemplatePath, moduleContext.outDir);
+        moduleBuildContext.modules = modules.findModules(moduleContext);
+        moduleBuildContext.outDir = utils.absolutePath(projectBuildContext.targetOutDir, moduleContext.config.name);
+        allModulesBuildContexts.push(moduleBuildContext);
+        compileDir.compileDir(moduleBuildContext, moduleTemplatePath, moduleBuildContext.outDir);
     }
 
     // Add nessary params to context and compile the template
-    context.overallModules = allModulesContexts;
-    context.modules = modules.findModules(context);
-    context.compileDir(context, projectTemplatePath, context.targetOutDir);
+    projectBuildContext.overallModules = allModulesBuildContexts;
+    projectBuildContext.modules = modules.findModules(context);
+
+    compileDir.compileDir(projectBuildContext, projectTemplatePath, projectBuildContext.targetOutDir);
 }
 
 module.exports.build = function(context) {

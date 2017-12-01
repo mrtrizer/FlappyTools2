@@ -1,15 +1,17 @@
+#!/usr/bin/env node
 "use strict"
 
-function generateResources(params) {
-    const utils = require("./utils.js");
-    const res_utils = require("./res_utils.js");
-    const fse = require("fs-extra");
+function getHelp() {
+    return "flappy gen_res";
+}
+
+function run(context, args) {
+    const utils = context.require("./utils.js");
+    const res_utils = context.require("./res_utils.js");
+    const fse = context.require("fs-extra");
     const path = require("path");
 
-    const context = utils.createContext(params, params.projectRoot, utils.defaultConfigFileName);
-
     let cacheMetaMap = {};
-
     res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
         fse.mkdirsSync(cacheDir);
         const cacheMetaArray = generator.script.generate(context, generator.context, config, resSrcDir, cacheDir);
@@ -29,4 +31,5 @@ function generateResources(params) {
     });
 }
 
-module.exports.generateResources = generateResources;
+module.exports.run = run;
+module.exports.getHelp = getHelp;

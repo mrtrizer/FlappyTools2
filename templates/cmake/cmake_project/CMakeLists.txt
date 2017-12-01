@@ -56,11 +56,13 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
 [% } %]
 
 if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
-    add_custom_command(
-            TARGET [= config.name =] POST_BUILD
-            COMMAND cp -R
-                    ${CMAKE_SOURCE_DIR}/resources
-                    ${CMAKE_CURRENT_BINARY_DIR}/)
+    if (EXISTS ${CMAKE_SOURCE_DIR}/resources)
+        add_custom_command(
+                TARGET [= config.name =] POST_BUILD
+                COMMAND cp -R
+                        ${CMAKE_SOURCE_DIR}/resources
+                        ${CMAKE_CURRENT_BINARY_DIR}/)
+    endif()
 endif()
 
 [% if (config.cxx.libs != undefined) { %]

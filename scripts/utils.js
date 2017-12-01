@@ -22,37 +22,14 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function findParams(projectRoot, templateName, projectOutDir, configOrder, extraParams) {
-    const generate_project = require("./generate_project.js");
-
-    const flappyConfig = getFlappyConfig();
-
-    const generatorPath = findTemplate(flappyConfig, projectRoot, templateName)
-
-    const targetOutDir = projectOutDir || absolutePath(projectRoot, "generated/" + templateName);
-
-    const params = {
-        "projectRoot": projectRoot,
-        "generatorPath": generatorPath,
-        "targetOutDir": targetOutDir,
-        "configOrder": configOrder,
-        "extraParams": extraParams
-    };
-
-    return params;
-}
-
-function findTemplate(flappyConfig, projectRoot, name) {
+function findTemplate(templateDirs, projectRoot, name) {
     const fs = require("fs");
     const path = require('path');
 
-    let templateDirs = flappyConfig["template_dirs"];
     const scriptPath = path.dirname(require.main.filename);
-    templateDirs.push(path.join(scriptPath, "../templates"));
-    templateDirs.push(absolutePath(projectRoot, "templates"));
 
     for (let i in templateDirs) {
-        const templateDir = templateDirs[i];
+        const templateDir = path.join(templateDirs[i], "templates");
         const generatorPath = absolutePath(templateDir, name);
         if (fs.existsSync(generatorPath))
             return generatorPath;
@@ -104,22 +81,20 @@ function readDirs(root) {
     return outList;
 }
 
-function mergeConfigs(moduleRoot, generatorPath, defaultConfigFileName, configOrder) {
+function findConfigs(dirs, configOrder) {
     const utils = require("./utils.js");
     const path = require("path");
 
-    const defaultConfig = utils.absolutePath(generatorPath, defaultConfigFileName); // template default config
-    const generalConfig = utils.absolutePath(moduleRoot, "flappy_conf/general.json"); // project default config
-
-    let fullConfigOrder = [defaultConfig, generalConfig];
-
-    for (let i in configOrder) {
-        const config = configOrder[i];
-
-        fullConfigOrder.push(path.join(moduleRoot, "flappy_conf", config + ".json"));
+    const fullConfigOrder = ["general"].concat(configOrder);
+    let configPathOrder = [];
+    for (let i in dirs) {
+        const dir = dirs[i];
+        for (let j in fullConfigOrder) {
+            const config = fullConfigOrder[j];
+            configPathOrder.push(path.join(dir, config + ".json"));
+        }
     }
-
-    return fullConfigOrder;
+    return configPathOrder;
 }
 
 function normalize(context, pathStr) {
@@ -168,41 +143,62 @@ function sourceList(context, sourceDirs, excludes) {
     return outList;
 }
 
-function findFlappyScript(name) {
-    const path = require('path');
-    const scriptPath = path.dirname(require.main.filename);
-    return path.join(scriptPath, name);
+// Base context is the first creted context. It serves as a base for the rest contexts,
+// like module context, generation context and custom contexts.
+function createContext(projectRoot, moduleRoot, configOrder, configDirName, extraParams) {
+    const path = require("path");
+    const mergeConfig = require("./merge_config.js");
+    const homedir = require("homedir");
+
+    const flappyHomeDir = path.join(homedir(), ".flappy");
+    const flappyHomeDirConfig = path.join(flappyHomeDir, configDirName);
+    const configDir = path.join(moduleRoot, "flappy_conf");
+    const configDirs = [flappyHomeDirConfig, configDir]
+    const configPathOrder = findConfigs(configDirs, configOrder);
+
+    const config = mergeConfig.parseJson(configPathOrder, extraParams);
+    const cacheDir = path.join(projectRoot, "flappy_cache", config.name);
+    const flappyToolsRoot = path.join(__dirname, "..");
+
+    const newContext = {};
+    newContext["moduleRoot"] = moduleRoot;
+    newContext["projectRoot"] = projectRoot;
+    newContext["cacheDir"] = cacheDir;
+    newContext["configDir"] = configDir;
+    newContext["config"] = config;
+    newContext["configOrder"] = configOrder;
+    newContext["extraParams"] = extraParams;
+    newContext["require"] = require;
+    newContext["templateDirs"] = [flappyToolsRoot, flappyHomeDir, projectRoot];
+    newContext["createContext"] = (customModuleRoot, customConfigDirName) => createContext(
+                                                                    projectRoot,
+                                                                    customModuleRoot,
+                                                                    configOrder,
+                                                                    customConfigDirName,
+                                                                    extraParams);
+    newContext["flappyToolsRoot"] = flappyToolsRoot;
+    newContext["flappyHomeDir"] = flappyHomeDir;
+    newContext["normalize"] = pathStr => normalize(newContext, pathStr);
+    return newContext;
 }
 
-function createContext(context, moduleRoot, defaultConfigFileName) {
-    const compile_dir = require("./compile_dir.js");
-    const merge_config = require("./merge_config.js");
+function createBuildContext(context, generatorPath, configDirName) {
+    const path = require("path");
+    const utils = context.require("./utils.js");
+    const mergeConfig = context.require("./merge_config.js");
 
-    const configOrder = mergeConfigs(
-        moduleRoot,
-        context.generatorPath,
-        defaultConfigFileName,
-        context.configOrder
-    );
-
-    const config = merge_config.parseJson(configOrder, context.extraParams);
-
-    const newContext = {
-        "projectRoot": context.projectRoot,
-        "moduleRoot": moduleRoot,
-        "config": config,
-        "compileDir": compile_dir.compileDir,
-        "generatorPath": context.generatorPath,
-        "targetOutDir": context.targetOutDir,
-        "configOrder": context.configOrder,
-        "extraParams": context.extraParams,
-        "findFlappyScript": findFlappyScript,
-        "require": require,
-        "createContext": createContext
-    };
-    newContext["normalize"] = pathStr => normalize(newContext, pathStr);
-    newContext["sourceList"] = (sourceDirs, excludes) => sourceList(newContext, sourceDirs, excludes);
-    return newContext;
+    let buildContext = Object.assign({}, context);
+    const configDirs = [
+        path.join(generatorPath, configDirName),
+        path.join(generatorPath, configDirName),
+        context.configDir];
+    const configPathOrder = utils.findConfigs(configDirs, context.configOrder);
+    const config = mergeConfig.parseJson(configPathOrder, context.extraParams);
+    buildContext["config"] = config;
+    buildContext["generatorPath"] = generatorPath;
+    buildContext["targetOutDir"] = path.join(context.projectRoot, "generated", "cmake");
+    buildContext["sourceList"] = (sourceDirs, excludes) => utils.sourceList(buildContext, sourceDirs, excludes)
+    return buildContext;
 }
 
 class TimestampCache {
@@ -234,12 +230,12 @@ class TimestampCache {
 module.exports.TimestampCache = TimestampCache;
 module.exports.defaultConfigFileName = "default.json";
 module.exports.absolutePath = absolutePath;
-module.exports.findParams = findParams;
 module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
+module.exports.findConfigs = findConfigs;
 module.exports.getFlappyConfig = getFlappyConfig;
 module.exports.requireGeneratorScript = requireGeneratorScript;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
 module.exports.createContext = createContext;
-module.exports.findFlappyScript = findFlappyScript;
+module.exports.createBuildContext = createBuildContext;

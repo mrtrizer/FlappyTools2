@@ -5,6 +5,7 @@
         "fs-path": "*",
         "node-getopt": "*",
         "fs-extra": "*",
-        "colors": "*"
+        "colors": "*",
+        "homedir": "*"
     }
 }
