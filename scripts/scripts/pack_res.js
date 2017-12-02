@@ -8,17 +8,14 @@ function getHelp() {
 function packResources(context, templateName) {
     const utils = context.require("./utils.js");
 
-    const generatorPath = utils.findTemplate(
-        context.templateDirs,
-        context.projectRoot,
-        templateName);
+    const generatorPath = utils.findTemplate(context.templateDirs, templateName);
     const buildContext = utils.createBuildContext(context, generatorPath, "project_conf");
     var projectGenerator = utils.requireGeneratorScript(generatorPath);
     projectGenerator.packResources(buildContext);
 }
 
 function run(context, args) {
-    if (args < 1)
+    if (args.length < 1)
         throw new Error("At least template name expected");
     const templateName = args[0];
     packResources(context, templateName);

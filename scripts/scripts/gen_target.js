@@ -6,14 +6,13 @@ function getHelp() {
 }
 
 function run(context, args) {
-    if (args < 1)
+    if (args.length < 1)
         throw new Error("At least template name expected");
     const utils = context.require("./utils.js");
     const templateName = args[0];
 
     const generatorPath = utils.findTemplate(
         context.templateDirs,
-        context.projectRoot,
         templateName);
 
     utils.requireGeneratorScript(generatorPath).generate(context);

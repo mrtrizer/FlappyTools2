@@ -5,30 +5,25 @@ function getHelp() {
     return "flappy init <template> <project name>";
 }
 
-function flappyInit(context, workingDir, templateName, projectName) {
+function flappyInit(globalContext, templateName, projectName) {
     const path = require("path");
-    const compileDir = context.require("./compile_dir.js");
-    const utils = context.require("./utils");
-
-    const outDir = path.join(workingDir, projectName)
-    const extraParams = {"name": projectName};
-
-    const config = utils.getFlappyConfig();
-    const templatePath = utils.findTemplate(config, workingDir, templateName);
-
-    compileDir.compileDir({"config": extraParams}, templatePath, outDir);
+    const compileDir = globalContext.require("./compile_dir.js");
+    const utils = globalContext.require("./utils");
+    const outDir = path.join(globalContext.workingDir, projectName);
+    const templateDirs = [globalContext.flappyToolsRoot, globalContext.flappyHomeDir];
+    const templatePath = utils.findTemplate(templateDirs, templateName);
+    globalContext["config"].name = projectName;
+    compileDir.compileDir(globalContext, templatePath, outDir);
 }
 
-function run(context, args) {
-    if (args < 2)
+function runGlobal(globalContext, args) {
+    if (args.length < 2)
         throw new Error("template and project name expected");
-    const templateName = opt.argv[0];
-    const projectName = opt.argv[1];
+    const templateName = args[0];
+    const projectName = args[1];
 
-    const workingDir = process.cwd();
-
-    flappyInit(context, workingDir, templateName, projectName);
+    flappyInit(globalContext, templateName, projectName);
 }
 
-module.exports.run = run;
+module.exports.runGlobal = runGlobal;
 module.exports.getHelp = getHelp;

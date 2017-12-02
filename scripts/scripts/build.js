@@ -6,7 +6,7 @@ function getHelp() {
 }
 
 function run(context, args) {
-    if (args < 1)
+    if (args.length < 1)
         throw new Error("At least template name expected");
     const genScript = context.requireFlappyScript("gen");
     genScript.run(context, args);

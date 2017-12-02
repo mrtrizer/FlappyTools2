@@ -22,7 +22,7 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function findTemplate(templateDirs, projectRoot, name) {
+function findTemplate(templateDirs, name) {
     const fs = require("fs");
     const path = require('path');
 
@@ -35,24 +35,6 @@ function findTemplate(templateDirs, projectRoot, name) {
             return generatorPath;
     }
     throw new Error("Can't find template.");
-}
-
-function getFlappyConfig() {
-    const os = require("os");
-    const fs = require("fs");
-    const path = require("path");
-
-    if (typeof os.homedir === "undefined") {
-        throw new Error("Update nodejs. For proper work nodejs >= 4.0 required.");
-    }
-
-    const configFilePath = path.join(os.homedir(), ".config/flappy/config.json");
-    if (!fs.existsSync(configFilePath)) {
-        return {"template_dirs":[]};
-    }
-    const configData = fs.readFileSync(configFilePath, "utf8");
-    const flappyConfig = JSON.parse(configData);
-    return flappyConfig;
 }
 
 function requireGeneratorScript(generatorPath) {
@@ -233,7 +215,6 @@ module.exports.absolutePath = absolutePath;
 module.exports.findProjectRoot = findProjectRoot;
 module.exports.findTemplate = findTemplate;
 module.exports.findConfigs = findConfigs;
-module.exports.getFlappyConfig = getFlappyConfig;
 module.exports.requireGeneratorScript = requireGeneratorScript;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
