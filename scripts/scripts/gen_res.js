@@ -2,7 +2,7 @@
 "use strict"
 
 function getHelp() {
-    return "flappy gen_res";
+    return "flappy gen_res - Generate resources.";
 }
 
 function run(context, args) {

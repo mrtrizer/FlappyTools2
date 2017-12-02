@@ -2,7 +2,7 @@
 "use strict"
 
 function getHelp() {
-    return "flappy gen <template>";
+    return "flappy gen <template> - Build resources and generate project for target platform.";
 }
 
 function run(context, args) {

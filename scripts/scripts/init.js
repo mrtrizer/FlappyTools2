@@ -2,7 +2,7 @@
 "use strict"
 
 function getHelp() {
-    return "flappy init <template> <project name>";
+    return "flappy init <template> <project name> - Initialize new project with template.";
 }
 
 function flappyInit(globalContext, templateName, projectName) {

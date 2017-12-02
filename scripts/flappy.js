@@ -3,17 +3,18 @@
 
 const childProcess = require("child_process");
 const path = require("path");
+const homedir = require("homedir");
 const utils = require("./utils.js");
 const mergeConfig = require("./merge_config.js");
 const logger = require("./logger.js");
-const homedir = require("homedir");
+const flappyArgs = require("./flappy_args.js");
 
 function printGeneralHelp() {
     console.log("Options:");
-    console.log("\tflappy --help - Print help message");
+    console.log("flappy --help - Print help message");
 }
 
-function printHelp(scriptMap) {
+function printScriptsHelp(scriptMap) {
     for (const i in scriptMap) {
         const scriptPath = scriptMap[i];
         const script = require(scriptPath);
@@ -46,68 +47,66 @@ function requireFlappyScript(scriptMap, scriptName) {
     }
 }
 
-const argv = process.argv.slice(2);
+const args = new flappyArgs.FlappyArgs(process.argv.slice(2));
 
-const configOrder = [];
-const args = [];
-const extraFields = {};
-
-// Parse arguments
-for (const i in argv) {
-    const arg = argv[i];
-    if (arg.trim()[0] == "+") {
-        configOrder.push(arg.substr(1));
-    } else if (arg.trim()[0] == ".") {
-        const fieldPairSplit = arg.substr(1).split("=");
-        extraFields[fieldPairSplit[0]] = fieldPairSplit[1];
-    } else {
-        args.push(arg);
-    }
-}
-
-const scriptName = args[0];
-const workingDir = process.cwd();
 const flappyHomeDir = path.join(homedir(), ".flappy");
+const workingDir = process.cwd();
 
-// Context-agnostic
-{
-    const scriptDirs = [__dirname, flappyHomeDir]
-    const scriptMap = findScripts(scriptDirs);
+if (args.isPresented("help", "h")) {
+    printGeneralHelp();
+    try {
+        const projectRoot = utils.findProjectRoot(workingDir);
+        const scriptDirs = [__dirname, flappyHomeDir, projectRoot];
+        const scriptMap = findScripts(scriptDirs);
+        printScriptsHelp(scriptMap);
+    } catch (e) {
+        const scriptDirs = [__dirname, flappyHomeDir]
+        const scriptMap = findScripts(scriptDirs);
+        printScriptsHelp(scriptMap);
+    }
+} else if (args.args.length > 0) {
+    const scriptName = args.args[0];
 
-    if (scriptMap.hasOwnProperty(scriptName)) {
-        const script = require(scriptMap[scriptName]);
-        if (typeof script.runGlobal == "function") {
-            // TODO: Move code of context and config compilation to function
-            const globalContext = {};
-            globalContext["require"] = require;
-            globalContext["workingDir"] = workingDir;
-            globalContext["flappyHomeDir"] = flappyHomeDir;
-            globalContext["flappyToolsRoot"] = path.join(__dirname, "..");
-            globalContext["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
-            const configDirs = [__dirname, flappyHomeDir];
-            const configPathOrder = utils.findConfigs(configDirs, configOrder);
-            const config = mergeConfig.parseJson(configPathOrder, extraFields);
-            globalContext["config"] = config;
-            return script.runGlobal(globalContext, args.slice(1)) || 0;
+    // Context-agnostic
+    {
+        const scriptDirs = [__dirname, flappyHomeDir]
+        const scriptMap = findScripts(scriptDirs);
+
+        if (scriptMap.hasOwnProperty(scriptName)) {
+            const script = require(scriptMap[scriptName]);
+            if (typeof script.runGlobal == "function") {
+                // TODO: Move code of context and config compilation to function
+                const globalContext = {};
+                globalContext["require"] = require;
+                globalContext["workingDir"] = workingDir;
+                globalContext["flappyHomeDir"] = flappyHomeDir;
+                globalContext["flappyToolsRoot"] = path.join(__dirname, "..");
+                globalContext["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
+                const configDirs = [__dirname, flappyHomeDir];
+                const configPathOrder = utils.findConfigs(configDirs, configOrder);
+                const config = mergeConfig.parseJson(configPathOrder, extraFields);
+                globalContext["config"] = config;
+                return script.runGlobal(globalContext, args.args.slice(1)) || 0;
+            }
         }
     }
-}
 
-// Context-specific
-{
-    const projectRoot = utils.findProjectRoot(workingDir);
-    const context = utils.createContext(projectRoot, projectRoot, configOrder, "project_conf", extraFields);
+    // Context-specific
+    {
+        const projectRoot = utils.findProjectRoot(workingDir);
+        const context = utils.createContext(projectRoot, projectRoot, configOrder, "project_conf", extraFields);
 
-    const scriptDirs = [__dirname, flappyHomeDir, projectRoot];
-    const scriptMap = findScripts(scriptDirs);
+        const scriptDirs = [__dirname, flappyHomeDir, projectRoot];
+        const scriptMap = findScripts(scriptDirs);
 
-    if (scriptMap.hasOwnProperty(scriptName)) {
-        const script = require(scriptMap[scriptName]);
-        if (typeof script.run == "function") {
-            context["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
-            return script.run(context, args.slice(1)) || 0;
+        if (scriptMap.hasOwnProperty(scriptName)) {
+            const script = require(scriptMap[scriptName]);
+            if (typeof script.run == "function") {
+                context["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
+                return script.run(context, args.args.slice(1)) || 0;
+            }
+        } else {
+            logger.loge(`Can't find script with name "${scriptName}"`);
         }
-    } else {
-        logger.loge(`Can't find script with name "${scriptName}"`);
     }
 }

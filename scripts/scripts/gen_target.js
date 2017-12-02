@@ -2,7 +2,7 @@
 "use strict"
 
 function getHelp() {
-    return "flappy gen_target <template>";
+    return "flappy gen_target <template> - Generate project for target platform.";
 }
 
 function run(context, args) {

@@ -2,7 +2,7 @@
 "use strict"
 
 function getHelp() {
-    return "flappy pack_res <template>";
+    return "flappy pack_res <template> - Pack resources for target platform. (Should be generated first)";
 }
 
 function packResources(context, templateName) {
