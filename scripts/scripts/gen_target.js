@@ -12,7 +12,7 @@ function run(context, args) {
     const templateName = args[0];
 
     const generatorPath = utils.findTemplate(
-        context.templateDirs,
+        context.searchDirs,
         templateName);
 
     utils.requireGeneratorScript(generatorPath).generate(context);

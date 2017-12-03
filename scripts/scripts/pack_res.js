@@ -8,7 +8,7 @@ function getHelp() {
 function packResources(context, templateName) {
     const utils = context.require("./utils.js");
 
-    const generatorPath = utils.findTemplate(context.templateDirs, templateName);
+    const generatorPath = utils.findTemplate(context.searchDirs, templateName);
     const buildContext = utils.createBuildContext(context, generatorPath, "project_conf");
     var projectGenerator = utils.requireGeneratorScript(generatorPath);
     projectGenerator.packResources(buildContext);

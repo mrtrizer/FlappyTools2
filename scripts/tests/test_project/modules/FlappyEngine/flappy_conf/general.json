@@ -1,9 +1,0 @@
-{
-    "name":"TestProject",
-    "modules":[],
-    "cxx": {
-        "includes":[
-            "test/test"
-        ]
-    }
-}

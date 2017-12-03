@@ -22,14 +22,14 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function findTemplate(templateDirs, name) {
+function findTemplate(searchDirs, name) {
     const fs = require("fs");
     const path = require('path');
 
     const scriptPath = path.dirname(require.main.filename);
 
-    for (let i in templateDirs) {
-        const templateDir = path.join(templateDirs[i], "templates");
+    for (let i in searchDirs) {
+        const templateDir = path.join(searchDirs[i], "templates");
         const generatorPath = absolutePath(templateDir, name);
         if (fs.existsSync(generatorPath))
             return generatorPath;
@@ -125,6 +125,32 @@ function sourceList(context, sourceDirs, excludes) {
     return outList;
 }
 
+function createGlobalContext(configOrder, extraParams) {
+    const path = require("path");
+    const mergeConfig = require("./merge_config.js");
+    const homedir = require("homedir");
+
+    const workingDir = process.cwd();
+    const flappyHomeDir = path.join(homedir(), ".flappy");
+    const flappyToolsRoot = path.join(__dirname, "..");
+    const flappyHomeDirConfig = path.join(flappyHomeDir, "flappy_conf");
+    const flappyToolsRootConfig = path.join(flappyToolsRoot, "flappy_conf");
+    const configDirs = [flappyToolsRootConfig, flappyHomeDirConfig]
+    const configPathOrder = findConfigs(configDirs, configOrder);
+    const config = mergeConfig.parseJson(configPathOrder, extraParams);
+
+    const context = {};
+    context["require"] = require;
+    context["workingDir"] = workingDir;
+    context["flappyHomeDir"] = flappyHomeDir;
+    context["searchDirs"] = [flappyToolsRoot, flappyHomeDir];
+    context["flappyToolsRoot"] = flappyToolsRoot;
+    context["config"] = config;
+    context["configOrder"] = configOrder;
+    context["extraParams"] = extraParams;
+    return context;
+}
+
 // Base context is the first creted context. It serves as a base for the rest contexts,
 // like module context, generation context and custom contexts.
 function createContext(projectRoot, moduleRoot, configOrder, configDirName, extraParams) {
@@ -142,26 +168,26 @@ function createContext(projectRoot, moduleRoot, configOrder, configDirName, extr
     const cacheDir = path.join(projectRoot, "flappy_cache", config.name);
     const flappyToolsRoot = path.join(__dirname, "..");
 
-    const newContext = {};
-    newContext["moduleRoot"] = moduleRoot;
-    newContext["projectRoot"] = projectRoot;
-    newContext["cacheDir"] = cacheDir;
-    newContext["configDir"] = configDir;
-    newContext["config"] = config;
-    newContext["configOrder"] = configOrder;
-    newContext["extraParams"] = extraParams;
-    newContext["require"] = require;
-    newContext["templateDirs"] = [flappyToolsRoot, flappyHomeDir, projectRoot];
-    newContext["createContext"] = (customModuleRoot, customConfigDirName) => createContext(
+    const context = {};
+    context["moduleRoot"] = moduleRoot;
+    context["projectRoot"] = projectRoot;
+    context["cacheDir"] = cacheDir;
+    context["configDir"] = configDir;
+    context["config"] = config;
+    context["configOrder"] = configOrder;
+    context["extraParams"] = extraParams;
+    context["require"] = require;
+    context["searchDirs"] = [flappyToolsRoot, flappyHomeDir, projectRoot];
+    context["createContext"] = (customModuleRoot, customConfigDirName) => createContext(
                                                                     projectRoot,
                                                                     customModuleRoot,
                                                                     configOrder,
                                                                     customConfigDirName,
                                                                     extraParams);
-    newContext["flappyToolsRoot"] = flappyToolsRoot;
-    newContext["flappyHomeDir"] = flappyHomeDir;
-    newContext["normalize"] = pathStr => normalize(newContext, pathStr);
-    return newContext;
+    context["flappyToolsRoot"] = flappyToolsRoot;
+    context["flappyHomeDir"] = flappyHomeDir;
+    context["normalize"] = pathStr => normalize(context, pathStr);
+    return context;
 }
 
 function createBuildContext(context, generatorPath, configDirName) {
@@ -218,5 +244,6 @@ module.exports.findConfigs = findConfigs;
 module.exports.requireGeneratorScript = requireGeneratorScript;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
+module.exports.createGlobalContext = createGlobalContext;
 module.exports.createContext = createContext;
 module.exports.createBuildContext = createBuildContext;

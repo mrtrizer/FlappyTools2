@@ -10,8 +10,8 @@ function flappyInit(globalContext, templateName, projectName) {
     const compileDir = globalContext.require("./compile_dir.js");
     const utils = globalContext.require("./utils");
     const outDir = path.join(globalContext.workingDir, projectName);
-    const templateDirs = [globalContext.flappyToolsRoot, globalContext.flappyHomeDir];
-    const templatePath = utils.findTemplate(templateDirs, templateName);
+    const searchDirs = [globalContext.flappyToolsRoot, globalContext.flappyHomeDir];
+    const templatePath = utils.findTemplate(searchDirs, templateName);
     globalContext["config"].name = projectName;
     compileDir.compileDir(globalContext, templatePath, outDir);
 }

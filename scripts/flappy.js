@@ -24,10 +24,10 @@ function printScriptsHelp(scriptMap) {
     }
 }
 
-function findScripts(scriptDirs) {
+function findScripts(searchDirs) {
     let scriptMap = {};
-    for (const i in scriptDirs) {
-        const scriptDir = path.join(scriptDirs[i], "scripts");
+    for (const i in searchDirs) {
+        const scriptDir = path.join(searchDirs[i], "scripts");
         const scriptList = utils.readDirs(scriptDir);
         for (const j in scriptList) {
             const scriptPath = scriptList[j];
@@ -56,12 +56,12 @@ if (args.isPresented("help", "h")) {
     printGeneralHelp();
     try {
         const projectRoot = utils.findProjectRoot(workingDir);
-        const scriptDirs = [__dirname, flappyHomeDir, projectRoot];
-        const scriptMap = findScripts(scriptDirs);
+        const searchDirs = [__dirname, flappyHomeDir, projectRoot];
+        const scriptMap = findScripts(searchDirs);
         printScriptsHelp(scriptMap);
     } catch (e) {
-        const scriptDirs = [__dirname, flappyHomeDir]
-        const scriptMap = findScripts(scriptDirs);
+        const searchDirs = [__dirname, flappyHomeDir]
+        const scriptMap = findScripts(searchDirs);
         printScriptsHelp(scriptMap);
     }
 } else if (args.args.length > 0) {
@@ -69,23 +69,15 @@ if (args.isPresented("help", "h")) {
 
     // Context-agnostic
     {
-        const scriptDirs = [__dirname, flappyHomeDir]
-        const scriptMap = findScripts(scriptDirs);
+        const searchDirs = [__dirname, flappyHomeDir]
+        const scriptMap = findScripts(searchDirs);
 
         if (scriptMap.hasOwnProperty(scriptName)) {
             const script = require(scriptMap[scriptName]);
             if (typeof script.runGlobal == "function") {
                 // TODO: Move code of context and config compilation to function
-                const globalContext = {};
-                globalContext["require"] = require;
-                globalContext["workingDir"] = workingDir;
-                globalContext["flappyHomeDir"] = flappyHomeDir;
-                globalContext["flappyToolsRoot"] = path.join(__dirname, "..");
+                const globalContext = utils.createGlobalContext(args.configOrder, args.extraFields);
                 globalContext["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
-                const configDirs = [__dirname, flappyHomeDir];
-                const configPathOrder = utils.findConfigs(configDirs, configOrder);
-                const config = mergeConfig.parseJson(configPathOrder, extraFields);
-                globalContext["config"] = config;
                 return script.runGlobal(globalContext, args.args.slice(1)) || 0;
             }
         }
@@ -94,10 +86,10 @@ if (args.isPresented("help", "h")) {
     // Context-specific
     {
         const projectRoot = utils.findProjectRoot(workingDir);
-        const context = utils.createContext(projectRoot, projectRoot, configOrder, "project_conf", extraFields);
+        const context = utils.createContext(projectRoot, projectRoot, args.configOrder, "project_conf", args.extraFields);
 
-        const scriptDirs = [__dirname, flappyHomeDir, projectRoot];
-        const scriptMap = findScripts(scriptDirs);
+        const searchDirs = [__dirname, flappyHomeDir, projectRoot];
+        const scriptMap = findScripts(searchDirs);
 
         if (scriptMap.hasOwnProperty(scriptName)) {
             const script = require(scriptMap[scriptName]);
