@@ -11,7 +11,7 @@ function findModules(context) {
     for (let i in context.config.modules) {
         const module = context.config.modules[i];
         let absolutePath = utils.absolutePath(context.moduleRoot, module.path);
-        const moduleContext = context.createContext(absolutePath, "module_conf");
+        const moduleContext = context.createProjectContext(absolutePath, "module_conf");
         modules.push(moduleContext);
     }
     return modules;

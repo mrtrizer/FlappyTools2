@@ -6,7 +6,7 @@ class FlappyArgs {
         this.configOrder = [];
         this.longKeys = [];
         this.shortKeys = [];
-        this.extraFields = {};
+        this.extraParams = {};
 
         for (const i in argv) {
             const arg = argv[i];
@@ -14,7 +14,7 @@ class FlappyArgs {
                 this.configOrder.push(arg.substr(1));
             } else if (arg.trim()[0] == ".") {
                 const fieldPairSplit = arg.substr(1).split("=");
-                this.extraFields[fieldPairSplit[0]] = fieldPairSplit[1];
+                this.extraParams[fieldPairSplit[0]] = fieldPairSplit[1];
             } else if (arg[0] == '-') {
                 if (arg[1] == '-')
                     this.longKeys.push(arg.slice(2));
