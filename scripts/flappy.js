@@ -43,27 +43,23 @@ if (args.isPresented("help", "h")) {
     const scriptName = args.args[0];
 
     // Global context
-    {
-        if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
-            const script = require(globalContext.scriptMap[scriptName]);
-            if (typeof script.runGlobal == "function") {
-                return script.runGlobal(globalContext, args.args.slice(1)) || 0;
-            }
+    if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
+        const script = require(globalContext.scriptMap[scriptName]);
+        if (typeof script.runGlobal == "function") {
+            return script.runGlobal(globalContext, args.args.slice(1)) || 0;
         }
     }
 
     // Project context
-    {
-        const projectRoot = utils.findProjectRoot(workingDir);
-        const projectContext = utils.createProjectContext(globalContext, projectRoot, projectRoot, "project_conf");
+    const projectRoot = utils.findProjectRoot(workingDir);
+    const projectContext = utils.createProjectContext(globalContext, projectRoot, projectRoot, "project_conf");
 
-        if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
-            const script = require(projectContext.scriptMap[scriptName]);
-            if (typeof script.run == "function") {
-                return script.run(projectContext, args.args.slice(1)) || 0;
-            }
-        } else {
-            logger.loge(`Can't find script with name "${scriptName}"`);
+    if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
+        const script = require(projectContext.scriptMap[scriptName]);
+        if (typeof script.run == "function") {
+            return script.run(projectContext, args.args.slice(1)) || 0;
         }
+    } else {
+        logger.loge(`Can't find script with name "${scriptName}"`);
     }
 }

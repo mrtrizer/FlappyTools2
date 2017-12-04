@@ -151,6 +151,16 @@ function requireFlappyScript(scriptMap, scriptName) {
     }
 }
 
+function findSearchDirs(config, flappyToolsRoot, flappyHomeDir) {
+    let searchDirs = [];
+    searchDirs.push(flappyToolsRoot);
+    if (typeof config.searchDirs == "object")
+        for (const key in config.searchDirs)
+            searchDirs.push(config.searchDirs[key]);
+    searchDirs.push(flappyHomeDir);
+    return searchDirs;
+}
+
 function createGlobalContext(args) {
     const path = require("path");
     const mergeConfig = require("./merge_config.js");
@@ -159,12 +169,12 @@ function createGlobalContext(args) {
     const workingDir = process.cwd();
     const flappyHomeDir = path.join(homedir(), ".flappy");
     const flappyToolsRoot = path.join(__dirname, "..");
-    const flappyHomeDirConfig = path.join(flappyHomeDir, "flappy_conf");
     const flappyToolsRootConfig = path.join(flappyToolsRoot, "flappy_conf");
-    const configDirs = [flappyToolsRootConfig, flappyHomeDirConfig]
+    const flappyHomeDirConfig = path.join(flappyHomeDir, "flappy_conf");
+    const configDirs = [flappyToolsRootConfig, flappyHomeDirConfig];
     const configPathOrder = findConfigs(configDirs, args.configOrder);
     const config = mergeConfig.parseJson(configPathOrder, args.extraParams);
-    const searchDirs = [flappyToolsRoot, flappyHomeDir]
+    const searchDirs = findSearchDirs(config, flappyToolsRoot, flappyHomeDir);
     const scriptMap = findScripts(searchDirs);
 
     const context = {};
@@ -174,6 +184,7 @@ function createGlobalContext(args) {
     context["searchDirs"] = searchDirs;
     context["flappyToolsRoot"] = flappyToolsRoot;
     context["config"] = config;
+    context["configDirs"] = configDirs;
     context["configOrder"] = args.configOrder;
     context["extraParams"] = args.extraParams;
     context["scriptMap"] = scriptMap;
@@ -186,10 +197,9 @@ function createProjectContext(globalContext, projectRoot, moduleRoot, configDirN
     const mergeConfig = require("./merge_config.js");
     const homedir = require("homedir");
 
-    const flappyHomeDir = path.join(homedir(), ".flappy");
-    const flappyHomeDirConfig = path.join(flappyHomeDir, configDirName);
-    const configDir = path.join(moduleRoot, "flappy_conf");
-    const configDirs = [flappyHomeDirConfig, configDir]
+    const moduleConfigDir = path.join(moduleRoot, "flappy_conf");
+    const overrideConfigDir = path.join(projectRoot, "flappy_conf/override");
+    const configDirs = globalContext.configDirs.concat([moduleConfigDir, overrideConfigDir]);
     const configPathOrder = findConfigs(configDirs, globalContext.configOrder);
     const config = mergeConfig.parseJson(configPathOrder, globalContext.extraParams);
     const cacheDir = path.join(projectRoot, "flappy_cache", config.name);
@@ -199,9 +209,9 @@ function createProjectContext(globalContext, projectRoot, moduleRoot, configDirN
     context["moduleRoot"] = moduleRoot;
     context["projectRoot"] = projectRoot;
     context["cacheDir"] = cacheDir;
-    context["configDir"] = configDir;
+    context["configDirs"] = configDirs;
     context["config"] = config;
-    context["searchDirs"] = [flappyToolsRoot, flappyHomeDir, projectRoot];
+    context["searchDirs"] =  globalContext.searchDirs.concat([projectRoot]);
     context["createProjectContext"] = (customModuleRoot, customConfigDirName) => createProjectContext(
                                                                     globalContext,
                                                                     projectRoot,
@@ -216,16 +226,16 @@ function createBuildContext(projectContext, generatorPath, configDirName) {
     const utils = projectContext.require("./utils.js");
     const mergeConfig = projectContext.require("./merge_config.js");
 
-    const configDirs = [
-        path.join(generatorPath, configDirName),
-        path.join(generatorPath, configDirName),
-        projectContext.configDir];
+    const generatorDefaultConfig = path.join(generatorPath, "flappy_conf");
+    const generatorConfigOverride = path.join(generatorPath, configDirName);
+    const configDirs = [generatorDefaultConfig, generatorConfigOverride].concat(projectContext.configDirs);
     const configPathOrder = utils.findConfigs(configDirs, projectContext.configOrder);
     const config = mergeConfig.parseJson(configPathOrder, projectContext.extraParams);
 
     let context = Object.assign({}, projectContext);
     context["config"] = config;
     context["generatorPath"] = generatorPath;
+    context["configDirs"] = configDirs;
     context["targetOutDir"] = path.join(projectContext.projectRoot, "generated", "cmake");
     context["sourceList"] = (sourceDirs, excludes) => utils.sourceList(context, sourceDirs, excludes)
     return context;
