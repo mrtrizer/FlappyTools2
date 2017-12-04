@@ -33,8 +33,8 @@ if (args.isPresented("help", "h")) {
     printGeneralHelp();
     try {
         const projectRoot = utils.findProjectRoot(workingDir);
-        const searchDirs = globalContext.searchDirs.concat([projectRoot]);
-        const scriptMap = findScripts(searchDirs);
+        const projectContext = utils.createProjectContext(globalContext, projectRoot, projectRoot, "project_conf")
+        const scriptMap = findScripts(projectContext.searchDirs);
         printScriptsHelp(scriptMap);
     } catch (e) {
         printScriptsHelp(globalContext.scriptMap);

@@ -134,8 +134,11 @@ function findScripts(searchDirs) {
         const scriptList = readDirs(scriptDir);
         for (const j in scriptList) {
             const scriptPath = scriptList[j];
-            const scriptName = path.parse(scriptPath).name;
-            scriptMap[scriptName] = scriptPath;
+            const parsedScriptPath = path.parse(scriptPath);
+            if ((parsedScriptPath.ext == ".js") && (scriptPath.indexOf("node_modules") == -1)) {
+                const scriptName = parsedScriptPath.name;
+                scriptMap[scriptName] = scriptPath;
+            }
         }
     }
     return scriptMap;
@@ -159,6 +162,19 @@ function findSearchDirs(config, flappyToolsRoot, flappyHomeDir) {
             searchDirs.push(config.searchDirs[key]);
     searchDirs.push(flappyHomeDir);
     return searchDirs;
+}
+
+function findProjectSearchDirs(context) {
+    const modules = require("./modules.js");
+
+    const projectSearchDirs = [];
+    const projectModules = modules.findAllModules(context);
+    for (const i in projectModules) {
+        const module = projectModules[i];
+        projectSearchDirs.push(module.moduleRoot);
+    }
+    projectSearchDirs.push(context.projectRoot);
+    return projectSearchDirs;
 }
 
 function createGlobalContext(args) {
@@ -211,13 +227,17 @@ function createProjectContext(globalContext, projectRoot, moduleRoot, configDirN
     context["cacheDir"] = cacheDir;
     context["configDirs"] = configDirs;
     context["config"] = config;
-    context["searchDirs"] =  globalContext.searchDirs.concat([projectRoot]);
     context["createProjectContext"] = (customModuleRoot, customConfigDirName) => createProjectContext(
                                                                     globalContext,
                                                                     projectRoot,
                                                                     customModuleRoot,
                                                                     customConfigDirName);
     context["normalize"] = pathStr => normalize(context, pathStr);
+    const searchDirs = globalContext.searchDirs.concat(findProjectSearchDirs(context));
+    const scriptMap = findScripts(searchDirs);
+    context["searchDirs"] = searchDirs;
+    context["scriptMap"] = scriptMap;
+    context["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
     return context;
 }
 
