@@ -8,12 +8,9 @@ function getHelp() {
 function run(context, args) {
     if (args.length < 1)
         throw new Error("At least template name expected");
-    const genResourcesScript = context.requireFlappyScript("gen_res");
-    genResourcesScript.run(context, []);
-    const packResourcesScript = context.requireFlappyScript("pack_res");
-    packResourcesScript.run(context, args);
-    const genTargetScript = context.requireFlappyScript("gen_target");
-    genTargetScript.run(context, args);
+    context.runFlappyScript("gen_res", "run");
+    context.runFlappyScript("pack_res", "run");
+    context.runFlappyScript("gen_target", "run");
 }
 
 module.exports.run = run;

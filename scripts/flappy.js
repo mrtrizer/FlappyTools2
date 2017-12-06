@@ -18,7 +18,7 @@ function printScriptsHelp(scriptMap) {
     for (const i in scriptMap) {
         const scriptPath = scriptMap[i];
         const script = require(scriptPath);
-        if (typeof script.getHelp == "function") {
+        if (typeof script.getHelp === "function") {
             console.log(script.getHelp());
         }
     }
@@ -27,38 +27,33 @@ function printScriptsHelp(scriptMap) {
 const args = new flappyArgs.FlappyArgs(process.argv.slice(2));
 
 const workingDir = process.cwd();
-const globalContext = utils.createGlobalContext(args);
+const globalContext = utils.createGlobalContext(args, args.plainArgs.slice(1));
 
 if (args.isPresented("help", "h")) {
     printGeneralHelp();
     try {
         const projectRoot = utils.findProjectRoot(workingDir);
-        const projectContext = utils.createProjectContext(globalContext, projectRoot, projectRoot, "project_conf")
-        const scriptMap = findScripts(projectContext.searchDirs);
-        printScriptsHelp(scriptMap);
+        const moduleContext = utils.createModuleContext(globalContext, projectRoot, projectRoot, "project_conf")
+        const projectContext = utils.createProjectContext(moduleContext);
+        printScriptsHelp(projectContext.scriptMap);
     } catch (e) {
         printScriptsHelp(globalContext.scriptMap);
     }
-} else if (args.args.length > 0) {
-    const scriptName = args.args[0];
+} else if (args.plainArgs.length > 0) {
+    const scriptName = args.plainArgs[0];
 
     // Global context
     if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
-        const script = require(globalContext.scriptMap[scriptName]);
-        if (typeof script.runGlobal == "function") {
-            return script.runGlobal(globalContext, args.args.slice(1)) || 0;
-        }
+        globalContext.runFlappyScript(scriptName, "runGlobal");
     }
 
     // Project context
     const projectRoot = utils.findProjectRoot(workingDir);
-    const projectContext = utils.createProjectContext(globalContext, projectRoot, projectRoot, "project_conf");
+    const moduleContext = utils.createModuleContext(globalContext, projectRoot, projectRoot, "project_conf");
+    const projectContext = utils.createProjectContext(moduleContext);
 
     if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
-        const script = require(projectContext.scriptMap[scriptName]);
-        if (typeof script.run == "function") {
-            return script.run(projectContext, args.args.slice(1)) || 0;
-        }
+        projectContext.runFlappyScript(scriptName, "run");
     } else {
         logger.loge(`Can't find script with name "${scriptName}"`);
     }

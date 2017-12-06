@@ -7,17 +7,23 @@ function getHelp() {
 
 function packResources(context, templateName) {
     const utils = context.require("./utils.js");
+    const logger = context.require("./logger.js");
 
     const generatorPath = utils.findTemplate(context.searchDirs, templateName);
     const buildContext = utils.createBuildContext(context, generatorPath, "project_conf");
     var projectGenerator = utils.requireGeneratorScript(generatorPath);
-    projectGenerator.packResources(buildContext);
+    try {
+        projectGenerator.packResources(buildContext);
+    } catch (e) {
+        logger.loge("Resouce packer filed: " + e.message);
+    }
 }
 
 function run(context, args) {
     if (args.length < 1)
         throw new Error("At least template name expected");
     const templateName = args[0];
+
     packResources(context, templateName);
 }
 

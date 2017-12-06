@@ -2,7 +2,7 @@
 
 class FlappyArgs {
     constructor(argv) {
-        this.args = [];
+        this.plainArgs = [];
         this.configOrder = [];
         this.longKeys = [];
         this.shortKeys = [];
@@ -21,7 +21,7 @@ class FlappyArgs {
                 else
                     this.shortKeys.push(arg.slice(1));
             } else {
-                this.args.push(arg);
+                this.plainArgs.push(arg);
             }
         }
     }
