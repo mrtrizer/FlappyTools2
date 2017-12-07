@@ -18,7 +18,6 @@ module.exports.generate = function(context) {
     let allModulesBuildContexts = [];
     for (let i in allModulesContexts) {
         const moduleContext = allModulesContexts[i];
-        console.log(moduleContext.configDir);
         const moduleBuildContext = utils.createBuildContext(moduleContext, __dirname, "module_conf");
         // Include nessesary parameters to module context and compile the template
         moduleBuildContext.modules = modules.findModules(moduleContext);
