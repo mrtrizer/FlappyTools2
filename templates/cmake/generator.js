@@ -74,7 +74,7 @@ function packRes (context, config, generator, resSrcDir, cacheDir) {
 module.exports.packResources = function (context) {
     const fse = context.require("fs-extra");
     const path = context.require("path");
-    const res_utils = context.require("./res_utils.js");
+    const res_utils = context.requireFlappyScript("res_utils");
     const utils = context.require("./utils.js");
 
     var fileInfoMap = [];
