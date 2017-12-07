@@ -44,7 +44,9 @@ if (args.isPresented("help", "h")) {
 
     // Global context
     if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
-        globalContext.runFlappyScript(scriptName, "runGlobal");
+        const script = globalContext.requireFlappyScript(scriptName);
+        if (typeof script.runGlobal === "function")
+            return globalContext.runFlappyScript(scriptName, "runGlobal") || 0;
     }
 
     // Project context
@@ -53,7 +55,7 @@ if (args.isPresented("help", "h")) {
     const projectContext = utils.createProjectContext(moduleContext);
 
     if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
-        projectContext.runFlappyScript(scriptName, "run");
+        return projectContext.runFlappyScript(scriptName, "run") || 0;
     } else {
         logger.loge(`Can't find script with name "${scriptName}"`);
     }
