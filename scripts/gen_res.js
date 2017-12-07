@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 "use strict"
 
-function getHelp() {
+module.exports.getHelp = function() {
     return "flappy gen_res - Generate resources.";
 }
 
-function run(context, args) {
+module.exports.run = function(context, args) {
     const utils = context.require("./utils.js");
     const res_utils = context.require("./res_utils.js");
     const logger = context.require("./logger.js");
@@ -35,6 +35,3 @@ function run(context, args) {
         spaces: "    "
     });
 }
-
-module.exports.run = run;
-module.exports.getHelp = getHelp;

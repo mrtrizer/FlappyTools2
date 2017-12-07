@@ -175,25 +175,56 @@ function findProjectSearchDirs(context) {
     return projectSearchDirs;
 }
 
-function runFlappyScript(context, scriptMap, scriptName, methodName) {
+function getAdditionalScripts(scriptMap, scriptName) {
+    let scriptObjects = [];
     for (const key in scriptMap) {
-        if (key != scriptName) {
-            const script = requireFlappyScript(scriptMap, key);
-            if (typeof script.onScriptReadyToStart == "function") {
-                script.onScriptReadyToStart(context, scriptName);
+        const script = requireFlappyScript(scriptMap, key);
+        if (Array.isArray(script.before)) {
+            if (script.before.indexOf(scriptName) != -1) {
+                scriptObjects = scriptObjects.concat(getRequiredScripts(scriptMap, key));
             }
         }
     }
+    return scriptObjects;
+}
+
+function getRequiredScripts(scriptMap, scriptName) {
     const script = requireFlappyScript(scriptMap, scriptName);
-    if (typeof script[methodName] === "function")
-        script[methodName](context, context.args.plainArgs);
-    for (const key in scriptMap) {
-        if (key != scriptName) {
-            const script = requireFlappyScript(scriptMap, key);
-            if (typeof script.onScriptFinished == "function") {
-                script.onScriptFinished(context, scriptName);
+    let scriptObjects = [];
+    if (Array.isArray(script.after)) {
+        const requirements = script.after;
+        for (const key in scriptMap) {
+            if (requirements.indexOf(key) != -1) {
+                scriptObjects = scriptObjects.concat(getRequiredScripts(scriptMap, key));
             }
         }
+        scriptObjects = scriptObjects.concat(getAdditionalScripts(scriptMap, scriptName));
+    }
+    scriptObjects.push({"name": scriptName, "script": script});
+    return scriptObjects;
+}
+
+function printScripts(scriptObjects, selectedScriptName) {
+    const colors = require('colors');
+    let str = "[start]";
+    for (const i in scriptObjects) {
+        const scriptName = scriptObjects[i].name;
+        if (selectedScriptName == scriptName)
+            str += " >> " + colors.yellow(scriptName);
+        else
+            str += " >> " + scriptName;
+    }
+    console.log(str);
+}
+
+function runFlappyScript(context, scriptMap, scriptName, methodName) {
+    const requiredScripts = getRequiredScripts(scriptMap, scriptName);
+    for (const i in requiredScripts) {
+        const script = requiredScripts[i].script;
+        const scriptName = requiredScripts[i].name;
+        printScripts(requiredScripts, scriptName);
+        if (typeof script[methodName] === "function")
+            script[methodName](context, context.args.plainArgs);
     }
 }
 

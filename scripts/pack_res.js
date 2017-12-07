@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict"
 
-function getHelp() {
+module.exports.getHelp = function getHelp() {
     return "flappy pack_res <template> - Pack resources for target platform. (Should be generated first)";
 }
 
@@ -19,7 +19,7 @@ function packResources(context, templateName) {
     }
 }
 
-function run(context, args) {
+module.exports.run = function(context, args) {
     if (args.length < 1)
         throw new Error("At least template name expected");
     const templateName = args[0];
@@ -27,5 +27,4 @@ function run(context, args) {
     packResources(context, templateName);
 }
 
-module.exports.run = run;
-module.exports.getHelp = getHelp;
+module.exports.after = ["gen_res"];

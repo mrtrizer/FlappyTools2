@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 "use strict"
 
-function getHelp() {
+module.exports.getHelp = function() {
     return "flappy gen_target <template> - Generate project for target platform.";
 }
 
-function run(context, args) {
+module.exports.run = function(context, args) {
     if (args.length < 1)
         throw new Error("At least template name expected");
     const utils = context.require("./utils.js");
@@ -18,5 +18,4 @@ function run(context, args) {
     utils.requireGeneratorScript(generatorPath).generate(context);
 }
 
-module.exports.run = run;
-module.exports.getHelp = getHelp;
+module.exports.after = ["pack_res"];
