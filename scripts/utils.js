@@ -303,8 +303,8 @@ function createProjectContext(moduleContext) {
 
 function createBuildContext(moduleContext, generatorPath, configDirName) {
     const path = require("path");
-    const utils = moduleContext.require("./utils.js");
-    const mergeConfig = moduleContext.require("./merge_config.js");
+    const utils = moduleContext.requireFlappyScript("utils");
+    const mergeConfig = moduleContext.requireFlappyScript("merge_config");
 
     const generatorDefaultConfig = path.join(generatorPath, "flappy_conf");
     const generatorConfigOverride = path.join(generatorPath, configDirName);

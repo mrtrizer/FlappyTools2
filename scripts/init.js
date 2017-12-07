@@ -7,7 +7,7 @@ function getHelp() {
 
 function flappyInit(globalContext, templateName, projectName) {
     const path = require("path");
-    const compileDir = globalContext.require("./compile_dir.js");
+    const compileDir = globalContext.requireFlappyScript("compile_dir");
     const utils = globalContext.require("./utils");
     const outDir = path.join(globalContext.workingDir, projectName);
     const searchDirs = [globalContext.flappyToolsRoot, globalContext.flappyHomeDir];

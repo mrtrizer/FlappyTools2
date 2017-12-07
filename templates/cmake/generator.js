@@ -3,9 +3,9 @@
 
 module.exports.generate = function(context) {
     const path = require("path");
-    const utils = context.require("./utils.js");
-    const modules = context.require("./modules.js");
-    const compileDir = context.require("./compile_dir.js");
+    const utils = context.requireFlappyScript("utils");
+    const modules = context.requireFlappyScript("modules");
+    const compileDir = context.requireFlappyScript("compile_dir");
 
     // Get pathes of project and module template folders
     const moduleTemplatePath = path.join(__dirname, "cmake_module");
@@ -42,7 +42,7 @@ module.exports.build = function(context) {
         childProcess.execSync(command, {"cwd": cwd, stdio: "inherit"});
     }
     const buildDir = path.join(context.targetOutDir, "build");
-    const logger = context.require("./logger.js");
+    const logger = context.requireFlappyScript("logger");
     logger.logi("Build dir: " + buildDir);
     efs.mkdirsSync(buildDir);
     call("cmake -G \"Unix Makefiles\" ..", buildDir);
@@ -75,7 +75,7 @@ module.exports.packResources = function (context) {
     const fse = context.require("fs-extra");
     const path = context.require("path");
     const res_utils = context.requireFlappyScript("res_utils");
-    const utils = context.require("./utils.js");
+    const utils = context.requireFlappyScript("utils");
 
     var fileInfoMap = [];
 

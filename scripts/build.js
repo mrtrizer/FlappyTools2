@@ -6,7 +6,7 @@ module.exports.getHelp = function() {
 }
 
 module.exports.run = function(context, args) {
-    const utils = context.require("./utils.js");
+    const utils = context.requireFlappyScript("utils");
     if (args.length < 1)
         throw new Error("At least template name expected");
     const templateName = args[0];

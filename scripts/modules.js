@@ -5,7 +5,7 @@ const defaultConfigFileNameSubmodule = "default_submodule.json"
 function findModules(context) {
     const path = require("path");
     const fs = require("fs");
-    const utils = context.require("./utils.js");
+    const utils = context.requireFlappyScript("utils");
 
     let modules = [];
     for (let i in context.config.modules) {
