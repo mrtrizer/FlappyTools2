@@ -15,11 +15,11 @@ function flappyInit(globalContext, templateName, projectName) {
     compileDir.compileDir(globalContext, templatePath, outDir);
 }
 
-function runGlobal(globalContext, args) {
-    if (args.length < 2)
+function runGlobal(globalContext) {
+    if (globalContext.args.plainArgs.length < 2)
         throw new Error("template and project name expected");
-    const templateName = args[0];
-    const projectName = args[1];
+    const templateName = globalContext.args.plainArgs[0];
+    const projectName = globalContext.args.plainArgs[1];
 
     flappyInit(globalContext, templateName, projectName);
 }
