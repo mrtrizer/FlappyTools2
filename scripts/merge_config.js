@@ -1,10 +1,17 @@
 "use strict"
 
+// Adds items to array field of outObject if key of jsonObject starts from "+"
 function jsonIterate (jsonObj, outObject) {
     for (let key in jsonObj) {
         let item = jsonObj[key];
         if (Array.isArray(item)) {
-            outObject[key] = item;
+            if (key[0] == "+") {
+                const fieldName = key.slice(1);
+                if (Array.isArray(outObject[fieldName]))
+                    outObject[fieldName] = outObject[fieldName].concat(item);
+            } else {
+                outObject[key] = item;
+            }
         } else if (typeof item == "object") {
             if (!outObject.hasOwnProperty(key))
                 outObject[key] = {};
