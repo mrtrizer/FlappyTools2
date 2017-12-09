@@ -8,8 +8,8 @@ module.exports.generate = function(context) {
     const compileDir = context.requireFlappyScript("compile_dir");
 
     // Get pathes of project and module template folders
-    const moduleTemplatePath = path.join(__dirname, "cmake_module");
-    const projectTemplatePath = path.join(__dirname, "cmake_project");
+    const moduleTemplatePath = path.join(__dirname, "cmake");
+    const projectTemplatePath = path.join(__dirname, "cmake");
 
     const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 

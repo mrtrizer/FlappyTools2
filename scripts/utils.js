@@ -307,8 +307,12 @@ function createBuildContext(moduleContext, generatorPath, configDirName) {
     const mergeConfig = moduleContext.requireFlappyScript("merge_config");
 
     const generatorDefaultConfig = path.join(generatorPath, "flappy_conf");
-    const generatorConfigOverride = path.join(generatorPath, configDirName);
-    const configDirs = [generatorDefaultConfig, generatorConfigOverride].concat(moduleContext.configDirs);
+    const generatorConfigs = [generatorDefaultConfig];
+    if (typeof configDirName === "string") {
+        const generatorConfigOverride = path.join(generatorPath, configDirName);
+        generatorConfigs.push(generatorConfigOverride);
+    }
+    const configDirs = generatorConfigs.concat(moduleContext.configDirs);
     const configPathOrder = utils.findConfigs(configDirs, moduleContext.configOrder);
     const config = mergeConfig.parseJson(configPathOrder, moduleContext.extraParams);
 
