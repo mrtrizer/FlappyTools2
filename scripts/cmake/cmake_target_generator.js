@@ -35,40 +35,34 @@ module.exports.generate = function(context) {
 
 module.exports.build = function(context) {
     const path = require("path");
-    const efs = context.require("fs-extra")
+    const efs = context.require("fs-extra");
+    const utils = context.requireFlappyScript("utils");
+
+    const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 
     function call(command, cwd) {
         const childProcess = require("child_process");
         childProcess.execSync(command, {"cwd": cwd, stdio: "inherit"});
     }
-    const buildDir = path.join(context.targetOutDir, "build");
-    const logger = context.requireFlappyScript("logger");
+    const buildDir = path.join(projectBuildContext.targetOutDir, "build");
+    const logger = projectBuildContext.requireFlappyScript("logger");
     logger.logi("Build dir: " + buildDir);
     efs.mkdirsSync(buildDir);
     call("cmake -G \"Unix Makefiles\" ..", buildDir);
     call("make", buildDir);
 }
 
-function packRes (context, config, generator, resSrcDir, cacheDir) {
+function packRes (context, res) {
     const fse = context.require("fs-extra");
     const path = require("path");
 
-    let resInfoList = [];
-    const resList = generator.script.getResList(config, resSrcDir, cacheDir);
-    for (const i in resList) {
-        const res = resList[i];
+    const outPath = path.join(context.targetOutDir, "resources", res.path);
+    fse.copySync(res.fullPath, outPath);
 
-        const outPath = path.join(context.targetOutDir, "resources", res.path);
-        fse.copySync(res.fullPath, outPath);
-
-        const resInfo = {
-            "path" : res.path,
-            "type" : res.type
-        }
-        resInfoList[res.path] = resInfo;
+    return {
+        "path" : res.path,
+        "type" : res.type
     }
-
-    return resInfoList;
 }
 
 module.exports.packResources = function (context) {
@@ -77,23 +71,28 @@ module.exports.packResources = function (context) {
     const res_utils = context.requireFlappyScript("res_utils");
     const utils = context.requireFlappyScript("utils");
 
-    var fileInfoMap = [];
+    const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 
-    res_utils.iterateResourcesRecursive(context, (config, generator, resSrcDir, cacheDir) => {
-        const projectGenerator = utils.requireGeneratorScript(context.generatorPath);
-        const fileInfoSubList = packRes(context, config, generator, resSrcDir, cacheDir);
-        fileInfoMap = Object.assign({}, fileInfoMap, fileInfoSubList);
-    });
+    var fileInfoMap = {};
 
-    const outDir = path.join(context.targetOutDir, "resources");
+    const cacheMetaSourcePath = path.join(projectBuildContext.projectRoot, "flappy_cache/cache_meta.json");
+    const metaDataMap = fse.readJsonSync(cacheMetaSourcePath);
+    for (const resName in metaDataMap) {
+        const metaData = metaDataMap[resName];
+        if (metaData.type == "file") {
+            fileInfoMap[metaData.path] = (packRes(projectBuildContext, metaData));
+        }
+    }
+
+    const outDir = path.join(projectBuildContext.targetOutDir, "resources");
     fse.mkdirsSync(outDir)
 
     const fileListPath = path.join(outDir, "file_list.json");
 
     fse.writeJsonSync(fileListPath, fileInfoMap, { spaces: "    " });
 
-    const cacheDir = res_utils.getCacheDir(context);
-    const cacheMetaSourcePath = path.join(cacheDir, "cache_meta.json");
     const cacheMetaOurPath = path.join(outDir, "cache_meta.json");
     fse.copySync(cacheMetaSourcePath, cacheMetaOurPath);
 }
+
+module.exports.generatorName = "cmake"

@@ -9,10 +9,9 @@ module.exports.run = function(context) {
     if (context.args.plainArgs.length < 1)
         throw new Error("At least template name expected");
     const templateName = context.args.plainArgs[0];
-    const generatorPath = utils.findTemplate(context.searchDirs, templateName);
-    const buildContext = utils.createBuildContext(context, generatorPath, "project_conf");
-    var projectGenerator = utils.requireGeneratorScript(generatorPath);
-    projectGenerator.build(buildContext);
+
+    const targetUtils = context.requireFlappyScript("target_utils");
+    targetUtils.runGenerator(context, templateName, "build");
 }
 
 module.exports.after = ["gen"];

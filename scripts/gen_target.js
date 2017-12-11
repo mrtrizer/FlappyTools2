@@ -7,14 +7,10 @@ module.exports.getHelp = function() {
 module.exports.run = function(context) {
     if (context.args.plainArgs.length < 1)
         throw new Error("At least template name expected");
-    const utils = context.requireFlappyScript("utils");
     const templateName = context.args.plainArgs[0];
 
-    const generatorPath = utils.findTemplate(
-        context.searchDirs,
-        templateName);
-
-    utils.requireGeneratorScript(generatorPath).generate(context);
+    const targetUtils = context.requireFlappyScript("target_utils");
+    targetUtils.runGenerator(context, templateName, "generate");
 }
 
 module.exports.after = ["pack_res"];

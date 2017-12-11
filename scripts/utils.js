@@ -134,8 +134,7 @@ function findScripts(searchDirs) {
             const scriptPath = scriptList[j];
             const parsedScriptPath = path.parse(scriptPath);
             if ((parsedScriptPath.ext == ".js") && (scriptPath.indexOf("node_modules") == -1)) {
-                const scriptName = parsedScriptPath.name;
-                scriptMap[scriptName] = scriptPath;
+                scriptMap[parsedScriptPath.name] = scriptPath;
             }
         }
     }
@@ -198,8 +197,8 @@ function getRequiredScripts(scriptMap, scriptName) {
                 scriptObjects = scriptObjects.concat(getRequiredScripts(scriptMap, key));
             }
         }
-        scriptObjects = scriptObjects.concat(getAdditionalScripts(scriptMap, scriptName));
     }
+    scriptObjects = scriptObjects.concat(getAdditionalScripts(scriptMap, scriptName));
     scriptObjects.push({"name": scriptName, "script": script});
     return scriptObjects;
 }
@@ -325,6 +324,26 @@ function createBuildContext(moduleContext, generatorPath, configDirName) {
     return context;
 }
 
+function installNodeModules(context, generatorsDirPath) {
+    const utils = context.requireFlappyScript("utils");
+    const path = require("path");
+
+    const timestamp_cache = context.requireFlappyScript("timestamp_cache");
+    const content = utils.readDirs(generatorsDirPath);
+    const packageFiles = content.filter(item =>
+        path.parse(item).base == "package.json" && item.indexOf("node_modules") == -1);
+    let timestampCache = new timestamp_cache.TimestampCache(context);
+    for (const i in packageFiles) {
+        const packageFile = packageFiles[i];
+        if (timestampCache.isChanged(packageFile)) {
+            const packageDir = path.parse(packageFile).dir;
+            const childProcess = require("child_process");
+            const npmCommand = "npm install"
+            childProcess.execSync(npmCommand, {"cwd": packageDir, stdio: "inherit"});
+        }
+    }
+}
+
 module.exports.defaultConfigFileName = "default.json";
 module.exports.absolutePath = absolutePath;
 module.exports.findProjectRoot = findProjectRoot;
@@ -337,3 +356,4 @@ module.exports.createGlobalContext = createGlobalContext;
 module.exports.createModuleContext = createModuleContext;
 module.exports.createProjectContext = createProjectContext;
 module.exports.createBuildContext = createBuildContext;
+module.exports.installNodeModules = installNodeModules;

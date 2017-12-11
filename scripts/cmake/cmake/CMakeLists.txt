@@ -43,6 +43,10 @@ target_include_directories([= config.name =]
 # All preprocessor defenition from module configuration
 target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =])
 
+[% if (config.cmake.module_path) { %]
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
+[% } %]
+
 [% for (let i in config.cmake.packages) { %]
     find_package([= config.cmake.packages[i].name =] REQUIRED)
     target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
@@ -57,10 +61,6 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
     	[% } %]
     	)
     [% } %]
-[% } %]
-
-[% if (config.cmake.module_path) { %]
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
 [% } %]
 
 [% if (projectRoot == moduleRoot) { %]
