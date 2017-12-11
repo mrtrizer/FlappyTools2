@@ -22,24 +22,6 @@ function findProjectRoot(workingDir) {
     throw new Error("Can't find project root");
 }
 
-function findTemplate(searchDirs, name) {
-    const fs = require("fs");
-    const path = require('path');
-
-    for (let i in searchDirs) {
-        const templateDir = path.join(searchDirs[i], "templates");
-        const generatorPath = absolutePath(templateDir, name);
-        if (fs.existsSync(generatorPath))
-            return generatorPath;
-    }
-    throw new Error("Can't find template.");
-}
-
-function requireGeneratorScript(generatorPath) {
-    const path = require("path");
-    return require(path.join(generatorPath, "generator.js"));
-}
-
 // Read file lists in directories recursively. Returns list of pathes.
 function readDirs(root) {
     const fs = require("fs");
@@ -144,7 +126,9 @@ function findScripts(searchDirs) {
 function requireFlappyScript(scriptMap, scriptName) {
     const logger = require("./logger.js");
     if (scriptMap.hasOwnProperty(scriptName)) {
-        return require(scriptMap[scriptName]);
+        let script = require(scriptMap[scriptName]);
+        script.path = require.resolve(scriptMap[scriptName]);
+        return script;
     } else {
         logger.loge(`Can't find script with name "${scriptName}"`);
         return {}
@@ -347,9 +331,7 @@ function installNodeModules(context, generatorsDirPath) {
 module.exports.defaultConfigFileName = "default.json";
 module.exports.absolutePath = absolutePath;
 module.exports.findProjectRoot = findProjectRoot;
-module.exports.findTemplate = findTemplate;
 module.exports.findConfigs = findConfigs;
-module.exports.requireGeneratorScript = requireGeneratorScript;
 module.exports.readDirs = readDirs;
 module.exports.sourceList = sourceList;
 module.exports.createGlobalContext = createGlobalContext;

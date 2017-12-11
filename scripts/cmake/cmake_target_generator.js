@@ -68,14 +68,19 @@ function packRes (context, res) {
 module.exports.packResources = function (context) {
     const fse = context.require("fs-extra");
     const path = context.require("path");
-    const res_utils = context.requireFlappyScript("res_utils");
     const utils = context.requireFlappyScript("utils");
+    const logger = context.requireFlappyScript("logger");
 
     const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 
     var fileInfoMap = {};
 
     const cacheMetaSourcePath = path.join(projectBuildContext.projectRoot, "flappy_cache/cache_meta.json");
+    if (!fse.existsSync(cacheMetaSourcePath)) {
+        logger.logi("Project has no resources to pack. Skipping.");
+        return;
+    }
+
     const metaDataMap = fse.readJsonSync(cacheMetaSourcePath);
     for (const resName in metaDataMap) {
         const metaData = metaDataMap[resName];

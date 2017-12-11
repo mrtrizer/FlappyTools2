@@ -11,13 +11,18 @@ module.exports.findAllGeneratorScripts = function(context) {
     return scriptObjectMap;
 }
 
-module.exports.runGenerator = function(context, templateName, funcName) {
+module.exports.findGenerator = function(context, generatorName) {
     const generators = module.exports.findAllGeneratorScripts(context);
 
-    if (generators.hasOwnProperty(templateName)) {
-        const generator = generators[templateName];
-        generator[funcName](context);
+    if (generators.hasOwnProperty(generatorName)) {
+        const generator = generators[generatorName];
+        return generator;
     } else {
         throw new Error(`Can't find generator with name "${templateName}".`);
     }
+}
+
+module.exports.runGenerator = function(context, generatorName, funcName) {
+    const generator = module.exports.findGenerator(context, generatorName);
+    generator[funcName](context);
 }
