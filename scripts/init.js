@@ -7,7 +7,7 @@ module.exports.getHelp = function() {
 function findAllInitScripts(globalContext) {
     let scriptObjectMap = {};
     for (const key in globalContext.scriptMap) {
-        const script = globalContext.requireFlappyScript(key);
+        const script = globalContext.scriptMap[key];
         if ((typeof script.init === "function") && (typeof script.initName === "string")) {
             scriptObjectMap[script.initName] = script;
         }

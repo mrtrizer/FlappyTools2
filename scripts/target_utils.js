@@ -3,7 +3,7 @@
 module.exports.findAllGeneratorScripts = function(context) {
     let scriptObjectMap = {};
     for (const key in context.scriptMap) {
-        const script = context.requireFlappyScript(key);
+        const script = context.scriptMap[key];
         if (typeof script.generatorName === "string") {
             scriptObjectMap[script.generatorName] = script;
         }

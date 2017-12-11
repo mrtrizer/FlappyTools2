@@ -15,9 +15,8 @@ function printGeneralHelp() {
 }
 
 function printScriptsHelp(scriptMap) {
-    for (const i in scriptMap) {
-        const scriptPath = scriptMap[i];
-        const script = require(scriptPath);
+    for (const key in scriptMap) {
+        const script = scriptMap[key];
         if (typeof script.getHelp === "function") {
             console.log(script.getHelp());
         }
@@ -44,7 +43,7 @@ if (args.isPresented("help", "h")) {
 
     // Global context
     if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
-        const script = globalContext.requireFlappyScript(scriptName);
+        const script = globalContext.scriptMap[scriptName];
         if (typeof script.runGlobal === "function")
             return globalContext.runFlappyScript(scriptName, "runGlobal") || 0;
     }

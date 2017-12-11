@@ -116,7 +116,11 @@ function findScripts(searchDirs) {
             const scriptPath = scriptList[j];
             const parsedScriptPath = path.parse(scriptPath);
             if ((parsedScriptPath.ext == ".js") && (scriptPath.indexOf("node_modules") == -1)) {
-                scriptMap[parsedScriptPath.name] = scriptPath;
+                let script = require(scriptPath);
+                script.path = scriptPath;
+                if (scriptMap.hasOwnProperty(parsedScriptPath.name))
+                    script.parentScript = scriptMap[parsedScriptPath.name];
+                scriptMap[parsedScriptPath.name] = script;
             }
         }
     }
@@ -126,9 +130,7 @@ function findScripts(searchDirs) {
 function requireFlappyScript(scriptMap, scriptName) {
     const logger = require("./logger.js");
     if (scriptMap.hasOwnProperty(scriptName)) {
-        let script = require(scriptMap[scriptName]);
-        script.path = require.resolve(scriptMap[scriptName]);
-        return script;
+        return scriptMap[scriptName];
     } else {
         logger.loge(`Can't find script with name "${scriptName}"`);
         return {}
@@ -161,7 +163,7 @@ function findProjectSearchDirs(context) {
 function getAdditionalScripts(scriptMap, scriptName) {
     let scriptObjects = [];
     for (const key in scriptMap) {
-        const script = requireFlappyScript(scriptMap, key);
+        const script = scriptMap[key];
         if (Array.isArray(script.before)) {
             if (script.before.indexOf(scriptName) != -1) {
                 scriptObjects = scriptObjects.concat(getRequiredScripts(scriptMap, key));
@@ -172,7 +174,7 @@ function getAdditionalScripts(scriptMap, scriptName) {
 }
 
 function getRequiredScripts(scriptMap, scriptName) {
-    const script = requireFlappyScript(scriptMap, scriptName);
+    const script = scriptMap[scriptName];
     let scriptObjects = [];
     if (Array.isArray(script.after)) {
         const requirements = script.after;
