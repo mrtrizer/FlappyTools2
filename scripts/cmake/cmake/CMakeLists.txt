@@ -27,7 +27,11 @@ set(CMAKE_BUILD_TYPE Debug)
 [% } %]
 
 [% if (projectRoot == moduleRoot) { %]
-    add_executable([= config.name =] ${[= config.name =]_SOURCES})
+    [% if (args.longKeys.indexOf("editor_lib") != -1) { %]
+        add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
+    [% } else { %]
+        add_executable([= config.name =] ${[= config.name =]_SOURCES})
+    [% } %]
 [% } else { %]
     add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
 [% } %]
