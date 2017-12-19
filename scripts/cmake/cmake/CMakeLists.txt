@@ -27,13 +27,15 @@ set(CMAKE_BUILD_TYPE Debug)
 [% } %]
 
 [% if (projectRoot == moduleRoot) { %]
-    [% if (args.longKeys.indexOf("editor_lib") != -1) { %]
+    [% if (args.longKeys.indexOf("shared_lib") != -1) { %]
         add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
+    [% } else if (args.longKeys.indexOf("static_lib") != -1) { %]
+        add_library([= config.name =] ${[= config.name =]_SOURCES})
     [% } else { %]
         add_executable([= config.name =] ${[= config.name =]_SOURCES})
     [% } %]
 [% } else { %]
-    add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
+    add_library([= config.name =] ${[= config.name =]_SOURCES})
 [% } %]
 
 # Pathes for header search
