@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0.2)
+cmake_minimum_required (VERSION 3.1.0)
 
 [% if (projectRoot == moduleRoot) { %]
     project([= config.name =])
@@ -19,6 +19,12 @@ cmake_minimum_required (VERSION 3.0.2)
     [% } %]
 [% } %]
 set(CMAKE_BUILD_TYPE Debug)
+
+# C++ standard
+[% if (config.cmake.cxx_standard) { %]
+    set(CMAKE_CXX_STANDARD [= config.cmake.cxx_standard =])
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+[% } %]
 
 # List all sources from all presented sources excluding exclude pathes
 [% const normalizedSources = sourceList(config.cxx.src_dirs, config.cxx.src_exclude); %]
@@ -60,6 +66,7 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
 
 [% if (config.cmake.module_path) { %]
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
+    set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
 [% } %]
 
 [% for (let i in config.cmake.packages) { %]

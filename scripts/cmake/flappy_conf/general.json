@@ -1,11 +1,12 @@
 {
     "name": "NoName",
     "cxx": {
-        "flags": ["-std=c++1y"],
+        "flags": [],
         "include": [],
         "source": []
     },
     "cmake": {
+        "cxx_standard": 14,
         "modules": []
     }
 

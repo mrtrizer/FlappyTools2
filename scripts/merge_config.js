@@ -32,11 +32,15 @@ function parseJson(fileList, extraParams) {
     fileList.forEach(function (val, index, array) {
         try {
             const data = fs.readFileSync(val, 'utf8');
-            const jsonObj = JSON.parse(data);
-            // recursive iterate json tree
-            jsonIterate(jsonObj, outParams);
+            try {
+                const jsonObj = JSON.parse(data);
+                // recursive iterate json tree
+                jsonIterate(jsonObj, outParams);
+            } catch (e) {
+                logger.loge("Config syntax error. File: " + val + " Error: " + e.message);
+                return;
+            }
         } catch (e) {
-            //logger.logi("Skip config (not found) " + val);
             return;
         }
     });
