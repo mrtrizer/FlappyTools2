@@ -3,7 +3,8 @@
     "cxx": {
         "flags": [],
         "include": [],
-        "source": []
+        "source": [],
+        "type": "executable"
     },
     "cmake": {
         "cxx_standard": 14,

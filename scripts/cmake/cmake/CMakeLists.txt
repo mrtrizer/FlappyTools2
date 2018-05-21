@@ -33,11 +33,11 @@ set(CMAKE_BUILD_TYPE Debug)
 [% } %]
 
 [% if (projectRoot == moduleRoot) { %]
-    [% if (args.longKeys.indexOf("shared_lib") != -1) { %]
+    [% if (config.cxx.type == "shared_lib") { %]
         add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
-    [% } else if (args.longKeys.indexOf("static_lib") != -1) { %]
+    [% } else if (config.cxx.type == "static_lib") { %]
         add_library([= config.name =] ${[= config.name =]_SOURCES})
-    [% } else { %]
+    [% } else if (config.cxx.type == "executable") { %]
         add_executable([= config.name =] ${[= config.name =]_SOURCES})
     [% } %]
 [% } else { %]
