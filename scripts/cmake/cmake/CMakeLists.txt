@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1.0)
 
 [% if (projectRoot == moduleRoot) { %]
-    project([= config.name =])
+    project([= config.name =] LANGUAGES CXX C)
 
     # Generation of compilation database
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -19,6 +19,13 @@ cmake_minimum_required (VERSION 3.1.0)
     [% } %]
 [% } %]
 set(CMAKE_BUILD_TYPE Debug)
+
+
+[% if (config.cmake.subdirectories) { %]
+    [% for (let i in config.cmake.subdirectories) { %]
+        add_subdirectory([= normalize(config.cmake.subdirectories[i]) =] [=outDir + "/build/sub/" + config.cmake.subdirectories[i] =])
+    [% } %]
+[% } %]
 
 # C++ standard
 [% if (config.cmake.cxx_standard) { %]
