@@ -5,12 +5,12 @@ cmake_minimum_required (VERSION 3.1.0)
 
     # Generation of compilation database
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
-      EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-        [= moduleRoot =]/compile_commands.json
-      )
-    ENDIF()
+    #IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
+    #  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    #    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+    #    [= moduleRoot =]/compile_commands.json
+    #  )
+    #ENDIF()
 
     # Add subdirectories of all nested submodules to reffer them from other places
     # and avoid cross-refference problems.
