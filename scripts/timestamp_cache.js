@@ -15,10 +15,16 @@ class TimestampCache {
     isChanged(path) {
         const fs = require('fs');
         const fse = require('fs-extra');
-        const lastModifTime = Math.floor(fs.statSync(path).mtime);
-        if (!(path in this.timestamps) || this.timestamps[path] != lastModifTime) {
-            console.log(path + " - Changed : " + lastModifTime);
-            this.timestamps[path] = lastModifTime;
+        try {
+            const lastModifTime = Math.floor(fs.statSync(path).mtime);
+            if (!(path in this.timestamps) || this.timestamps[path] != lastModifTime) {
+                console.log(path + " - Changed : " + lastModifTime);
+                this.timestamps[path] = lastModifTime;
+                fse.outputJsonSync(this.timestampCachePath, this.timestamps, {spaces: 4});
+                return true;
+            }
+        } catch (e) {
+            this.timestamps[path] = 0;
             fse.outputJsonSync(this.timestampCachePath, this.timestamps, {spaces: 4});
             return true;
         }
