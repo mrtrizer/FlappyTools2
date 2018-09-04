@@ -43,4 +43,4 @@ build_script:
   - node .\scripts\flappy.js init cpp TestProject2
   - cd TestProject2
   - node ..\scripts\flappy.js build cmake
-  - .\generated\cmake\Release\TestProject2.exe
+  - .\generated\cmake\build\Release\TestProject2.exe
