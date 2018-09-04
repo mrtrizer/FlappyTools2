@@ -26,14 +26,21 @@ before_build:
   - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MINGW_W64" set PATH=C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
 
 build_script:
+  - cd C:\projects\flappytools2
   - cd scripts
   - npm install
   - cd ..
-  - node .\scripts\flappy.js init cpp TestProject
-  - cd TestProject
+  - node .\scripts\flappy.js init cpp TestProject1
+  - cd TestProject1
   - node ..\scripts\flappy.js gen cmake
   - cd generated\cmake
   - cmake -G "Visual Studio 15 2017"
   - cmake --build . --target ALL_BUILD --config Release
   - cd Release
-  - TestProject.exe
+  - TestProject1.exe
+  
+  - cd C:\projects\flappytools2
+  - node .\scripts\flappy.js init cpp TestProject2
+  - cd TestProject2
+  - node ..\scripts\flappy.js build cmake
+  - .\generated\cmake\Release\TestProject2.exe
