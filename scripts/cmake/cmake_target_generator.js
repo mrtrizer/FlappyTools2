@@ -55,8 +55,13 @@ module.exports.build = function(context) {
     const logger = projectBuildContext.requireFlappyScript("logger");
     logger.logi("Build dir: " + buildDir);
     efs.mkdirsSync(buildDir);
-    call("cmake -G \"Unix Makefiles\" ..", buildDir);
-    call("make", buildDir);
+    if (process.platform == "win32") {
+        call("cmake -G \"Visual Studio 15 2017\" ..", buildDir);
+        call("cmake --build . --target ALL_BUILD --config Release", buildDir);
+    } else {
+        call("cmake -G \"Unix Makefiles\" ..", buildDir);
+        call("make", buildDir);
+    }
 }
 
 function packRes (context, res) {
