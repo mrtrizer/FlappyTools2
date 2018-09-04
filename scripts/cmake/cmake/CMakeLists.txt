@@ -23,7 +23,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 [% if (config.cmake.subdirectories) { %]
     [% for (let i in config.cmake.subdirectories) { %]
-        add_subdirectory([= normalize(config.cmake.subdirectories[i]) =] [=outDir + "/build/sub/" + config.cmake.subdirectories[i] =])
+        add_subdirectory([= cmakeNormalize(config.cmake.subdirectories[i]) =] [=outDir + "/build/sub/" + config.cmake.subdirectories[i] =])
     [% } %]
 [% } %]
 
@@ -36,7 +36,7 @@ set(CMAKE_BUILD_TYPE Debug)
 # List all sources from all presented sources excluding exclude pathes
 [% const normalizedSources = sourceList(config.cxx.src_dirs, config.cxx.src_exclude); %]
 [% for (let i in normalizedSources) { %]
-    list(APPEND [= config.name =]_SOURCES "[= normalizedSources[i] =]")
+    list(APPEND [= config.name =]_SOURCES "[= cmakeNormalize(normalizedSources[i]) =]")
 [% } %]
 
 [% if (projectRoot == moduleRoot) { %]
@@ -55,7 +55,7 @@ set(CMAKE_BUILD_TYPE Debug)
 target_include_directories([= config.name =]
 [= (projectRoot == moduleRoot ? "PRIVATE" : "PUBLIC") =]
 [% for (let i in config.cxx.header_dirs) { %]
-    "[= normalize(config.cxx.header_dirs[i]) =]"
+    "[= cmakeNormalize(config.cxx.header_dirs[i]) =]"
 [% } %]
 )
 
@@ -72,8 +72,8 @@ target_include_directories([= config.name =]
 target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =])
 
 [% if (config.cmake.module_path) { %]
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
-    set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "[= normalize(config.cmake.module_path) =]")
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
+    set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
 [% } %]
 
 [% for (let i in config.cmake.packages) { %]
@@ -86,7 +86,7 @@ target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =
     [% if (config.cxx.libs.length > 0) {%]
     	target_link_libraries([= config.name =]
     	[% for (let i in config.cxx.libs) { %]
-    	     "[= normalize(config.cxx.libs[i]) =]"
+    	     "[= cmakeNormalize(config.cxx.libs[i]) =]"
     	[% } %]
     	)
     [% } %]

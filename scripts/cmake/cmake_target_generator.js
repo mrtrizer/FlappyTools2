@@ -1,6 +1,11 @@
 #!/usr/bin/nodejs
 "use strict"
 
+function cmakeNormalize(context, path) {
+    var normalizedPath = context.normalize(path);
+    return process.platform == "win32" ?  normalizedPath.replace(/\\/g, "/") : normalizedPath;
+}
+
 module.exports.generate = function(context) {
     const path = require("path");
     const utils = context.requireFlappyScript("utils");
@@ -22,12 +27,14 @@ module.exports.generate = function(context) {
         // Include nessesary parameters to module context and compile the template
         moduleBuildContext.modules = modules.findModules(moduleContext);
         moduleBuildContext.outDir = utils.absolutePath(projectBuildContext.targetOutDir, moduleContext.config.name);
+        moduleBuildContext.cmakeNormalize = cmakeNormalize;
         allModulesBuildContexts.push(moduleBuildContext);
         compileDir.compileDir(moduleBuildContext, moduleTemplatePath, moduleBuildContext.outDir);
     }
 
     // Add nessary params to context and compile the template
     projectBuildContext.overallModules = allModulesBuildContexts;
+    projectBuildContext.cmakeNormalize = cmakeNormalize;
     projectBuildContext.modules = modules.findModules(context);
 
     compileDir.compileDir(projectBuildContext, projectTemplatePath, projectBuildContext.targetOutDir);
