@@ -1,13 +1,16 @@
 {
     "name": "NoName",
     "cxx": {
-        "flags": [],
+        "flags": ["--std=c++17"],
+        "flags_clang": ["--std=c++17"],
+        "flags_gnu": ["--std=c++17"],
+        "flags_intel": ["--std=c++17"],
+        "flags_msvc": ["/std:c++17"],
         "include": [],
         "source": [],
         "type": "executable"
     },
     "cmake": {
-        "cxx_standard": 14,
         "modules": []
     }
 

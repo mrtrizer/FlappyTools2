@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1.0)
+project([= config.name =] LANGUAGES CXX C)
 
 [% if (projectRoot == moduleRoot) { %]
-    project([= config.name =] LANGUAGES CXX C)
 
     # Generation of compilation database
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -69,7 +69,15 @@ target_include_directories([= config.name =]
 [% } %]
 
 # All preprocessor defenition from module configuration
-target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =])
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_clang.join(" ") =])
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_gnu.join(" ") =])
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_intel.join(" ") =])
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags_msvc.join(" ") =])
+endif()
 
 [% if (config.cmake.module_path) { %]
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
