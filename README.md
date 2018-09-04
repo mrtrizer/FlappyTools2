@@ -2,6 +2,7 @@
 Installation and test
 
 [![Build Status](https://travis-ci.org/mrtrizer/FlappyTools2.svg?branch=master)](https://travis-ci.org/mrtrizer/FlappyTools2)
+[![Build status](https://ci.appveyor.com/api/projects/status/9bqsa6v6fgrvcbaw?svg=true)](https://ci.appveyor.com/project/mrtrizer/flappytools2)
 
 ## Installation
 Tested on OSX and Ubuntu. Windows is not supported yet.
