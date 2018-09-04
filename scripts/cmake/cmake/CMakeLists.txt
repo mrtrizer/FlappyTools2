@@ -15,7 +15,7 @@ cmake_minimum_required (VERSION 3.1.0)
     # Add subdirectories of all nested submodules to reffer them from other places
     # and avoid cross-refference problems.
     [% for (let i in overallModules) { %]
-        add_subdirectory([= overallModules[i].outDir =])
+        add_subdirectory([= cmakeNormalize(overallModules[i].outDir) =])
     [% } %]
 [% } %]
 set(CMAKE_BUILD_TYPE Debug)
@@ -23,7 +23,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 [% if (config.cmake.subdirectories) { %]
     [% for (let i in config.cmake.subdirectories) { %]
-        add_subdirectory([= cmakeNormalize(config.cmake.subdirectories[i]) =] [=outDir + "/build/sub/" + config.cmake.subdirectories[i] =])
+         add_subdirectory([= cmakeNormalize(config.cmake.subdirectories[i]) =] [=cmakeNormalize(outDir) + "/build/sub/" + cmakeNormalize(config.cmake.subdirectories[i]) =])
     [% } %]
 [% } %]
 

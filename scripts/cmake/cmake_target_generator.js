@@ -27,14 +27,14 @@ module.exports.generate = function(context) {
         // Include nessesary parameters to module context and compile the template
         moduleBuildContext.modules = modules.findModules(moduleContext);
         moduleBuildContext.outDir = utils.absolutePath(projectBuildContext.targetOutDir, moduleContext.config.name);
-        moduleBuildContext.cmakeNormalize = cmakeNormalize;
+        moduleBuildContext.cmakeNormalize = (path) => cmakeNormalize(moduleBuildContext, path);
         allModulesBuildContexts.push(moduleBuildContext);
         compileDir.compileDir(moduleBuildContext, moduleTemplatePath, moduleBuildContext.outDir);
     }
 
     // Add nessary params to context and compile the template
     projectBuildContext.overallModules = allModulesBuildContexts;
-    projectBuildContext.cmakeNormalize = cmakeNormalize;
+    projectBuildContext.cmakeNormalize = (path) => cmakeNormalize(projectBuildContext, path);
     projectBuildContext.modules = modules.findModules(context);
 
     compileDir.compileDir(projectBuildContext, projectTemplatePath, projectBuildContext.targetOutDir);
