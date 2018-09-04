@@ -19,6 +19,8 @@ function generate(inputData) {
                 state = "bracket_open";
             } else if (c == "\n") {
                 outData += "\\n\" + \n        \"";
+            } else if (c == "\r") {
+                // Skip CR symbol
             } else if (c == "\"") {
                 outData += "\\\""
             } else {
