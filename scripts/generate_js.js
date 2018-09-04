@@ -23,6 +23,9 @@ function generate(inputData) {
                 outData += "\\\""
             } else {
                 outData += c;
+                // Doubling slash is important for windows pathes
+                if (c == "\\")
+                    outData += "\\";
             }
         }
 
@@ -48,6 +51,9 @@ function generate(inputData) {
                     state = "block_end_marker";
                 } else {
                     outData += c;
+                    // Doubling slash is important for windows pathes
+                    if (c == "\\")
+                        outData += "\\";
                 }
                 break
             case "block_end_marker":
@@ -77,6 +83,9 @@ function generate(inputData) {
                     state = "inline_end_marker";
                 } else {
                     outData += c;
+                    // Doubling slash is important for windows pathes
+                    if (c == "\\")
+                        outData += "\\";
                 }
                 break;
         }
