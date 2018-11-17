@@ -19,7 +19,7 @@ module.exports.generate = function(context) {
     const projectBuildContext = utils.createBuildContext(context, __dirname, "project_conf");
 
     // Iterate all modules in a project
-    const allModulesContexts = modules.findAllModules(context);
+    const allModulesContexts = context.overallModules;
     let allModulesBuildContexts = [];
     for (let i in allModulesContexts) {
         const moduleContext = allModulesContexts[i];

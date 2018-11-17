@@ -50,3 +50,4 @@ function parseJson(fileList, extraParams) {
 }
 
 module.exports.parseJson = parseJson;
+module.exports.jsonIterate = jsonIterate;

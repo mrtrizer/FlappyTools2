@@ -173,6 +173,8 @@ function getAdditionalScripts(scriptMap, scriptName) {
     return scriptObjects;
 }
 
+// The function returns list of scripts market "before" and scripts, listed in "after" array
+// It will not return scripts which point to scriptName in "after" array.
 function getRequiredScripts(scriptMap, scriptName) {
     const script = scriptMap[scriptName];
     let scriptObjects = [];
@@ -275,10 +277,12 @@ function createModuleContext(globalContext, projectRoot, moduleRoot, configDirNa
 }
 
 function createProjectContext(moduleContext) {
+    const modules = moduleContext.requireFlappyScript("modules");
     const searchDirs = moduleContext.searchDirs.concat(findProjectSearchDirs(moduleContext));
     const scriptMap = findScripts(searchDirs);
 
     const context = Object.assign({}, moduleContext);
+    context["overallModules"] = modules.findAllModules(moduleContext);
     context["searchDirs"] = searchDirs;
     context["scriptMap"] = scriptMap;
     context["requireFlappyScript"] = scriptName => requireFlappyScript(scriptMap, scriptName)
@@ -297,14 +301,15 @@ function createBuildContext(moduleContext, generatorPath, configDirName) {
         const generatorConfigOverride = path.join(generatorPath, configDirName);
         generatorConfigs.push(generatorConfigOverride);
     }
-    const configDirs = generatorConfigs.concat(moduleContext.configDirs);
-    const configPathOrder = utils.findConfigs(configDirs, moduleContext.configOrder);
-    const config = mergeConfig.parseJson(configPathOrder, moduleContext.extraParams);
+    const configPathOrder = utils.findConfigs(generatorConfigs, moduleContext.configOrder);
+    const config = mergeConfig.parseJson(configPathOrder);
+
+    mergeConfig.jsonIterate(moduleContext.config, config);
+    mergeConfig.jsonIterate(moduleContext.extraParams, config);
 
     let context = Object.assign({}, moduleContext);
     context["config"] = config;
     context["generatorPath"] = generatorPath;
-    context["configDirs"] = configDirs;
     context["targetOutDir"] = path.join(moduleContext.projectRoot, "generated", "cmake");
     context["sourceList"] = (sourceDirs, excludes) => utils.sourceList(context, sourceDirs, excludes)
     return context;
