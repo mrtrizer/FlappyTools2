@@ -2,7 +2,7 @@
     "name": "NoName",
     "cxx": {
         "flags": ["--std=c++17"],
-        "link_flags": ["a"],
+        "link_flags": [],
         "flags_clang": ["--std=c++17"],
         "link_flags_clang": [],
         "flags_gnu": ["--std=c++17"],
@@ -18,5 +18,4 @@
     "cmake": {
         "modules": []
     }
-
 }
