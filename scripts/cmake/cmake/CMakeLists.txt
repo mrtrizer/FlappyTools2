@@ -71,12 +71,16 @@ target_include_directories([= config.name =]
 # All preprocessor defenition from module configuration
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_clang.join(" ") =])
+    target_link_libraries([= config.name =] PRIVATE [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_clang.join(" ") =])
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_gnu.join(" ") =])
+    target_link_libraries([= config.name =] PRIVATE [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_gnu.join(" ") =])
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_intel.join(" ") =])
+    target_link_libraries([= config.name =] PRIVATE [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_intel.join(" ") =])
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     target_compile_options([= config.name =] PRIVATE [= config.cxx.flags_msvc.join(" ") =])
+    target_link_libraries([= config.name =] PRIVATE [= config.cxx.link_flags_msvc.join(" ") =])
 endif()
 
 [% if (config.cmake.module_path) { %]

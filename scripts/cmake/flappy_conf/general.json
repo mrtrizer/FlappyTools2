@@ -2,10 +2,15 @@
     "name": "NoName",
     "cxx": {
         "flags": ["--std=c++17"],
+        "link_flags": ["a"],
         "flags_clang": ["--std=c++17"],
+        "link_flags_clang": [],
         "flags_gnu": ["--std=c++17"],
+        "link_flags_gnu": [],
         "flags_intel": ["--std=c++17"],
+        "link_flags_intel": [],
         "flags_msvc": ["/std:c++17"],
+        "link_flags_msvc": [],
         "include": [],
         "source": [],
         "type": "executable"
