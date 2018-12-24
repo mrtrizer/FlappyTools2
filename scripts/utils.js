@@ -252,7 +252,10 @@ function createGlobalContext(args, customPlainArgs) {
 function createModuleContext(globalContext, projectRoot, moduleRoot, configDirName) {
     const path = require("path");
     const mergeConfig = require("./merge_config.js");
+    const fs = require("fs");
 
+    if (!fs.existsSync(moduleRoot))
+        throw Error("Module " + moduleRoot + " doesn't esists");
     const moduleConfigDir = path.join(moduleRoot, "flappy_conf");
     const overrideConfigDir = path.join(projectRoot, "flappy_conf/override");
     const configDirs = globalContext.configDirs.concat([moduleConfigDir, overrideConfigDir]);

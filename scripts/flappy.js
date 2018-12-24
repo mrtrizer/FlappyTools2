@@ -41,21 +41,25 @@ if (args.isPresented("help", "h")) {
 } else if (args.plainArgs.length > 0) {
     const scriptName = args.plainArgs[0];
 
-    // Global context
-    if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
-        const script = globalContext.scriptMap[scriptName];
-        if (typeof script.runGlobal === "function")
-            return globalContext.runFlappyScript(scriptName, "runGlobal") || 0;
-    }
+    try {
+        // Global context
+        if (globalContext.scriptMap.hasOwnProperty(scriptName)) {
+            const script = globalContext.scriptMap[scriptName];
+            if (typeof script.runGlobal === "function")
+                return globalContext.runFlappyScript(scriptName, "runGlobal") || 0;
+        }
 
-    // Project context
-    const projectRoot = utils.findProjectRoot(workingDir);
-    const moduleContext = utils.createModuleContext(globalContext, projectRoot, projectRoot, "project_conf");
-    const projectContext = utils.createProjectContext(moduleContext);
+        // Project context
+        const projectRoot = utils.findProjectRoot(workingDir);
+        const moduleContext = utils.createModuleContext(globalContext, projectRoot, projectRoot, "project_conf");
+        const projectContext = utils.createProjectContext(moduleContext);
 
-    if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
-        return projectContext.runFlappyScript(scriptName, "run") || 0;
-    } else {
-        logger.loge(`Can't find script with name "${scriptName}"`);
+        if (projectContext.scriptMap.hasOwnProperty(scriptName)) {
+            return projectContext.runFlappyScript(scriptName, "run") || 0;
+        } else {
+            logger.loge(`Can't find script with name "${scriptName}"`);
+        }
+    } catch (e) {
+        logger.loge(`${e.message}`);
     }
 }
