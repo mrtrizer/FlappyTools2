@@ -21,25 +21,19 @@ project([= config.name =] LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Debug)
 
 
-[% if (config.cmake.subdirectories) { %]
+[% if (typeof(config.cmake) === "object" && typeof(config.cmake.subdirectories) === "object") { %]
     [% for (let i in config.cmake.subdirectories) { %]
          add_subdirectory([= cmakeNormalize(config.cmake.subdirectories[i]) =] [=cmakeNormalize(outDir) + "/build/sub/" + cmakeNormalize(config.cmake.subdirectories[i]) =])
     [% } %]
 [% } %]
 
-# C++ standard
-[% if (config.cmake.cxx_standard) { %]
-    set(CMAKE_CXX_STANDARD [= config.cmake.cxx_standard =])
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-[% } %]
+[% if (typeof(config.cxx) === "object") { %]
+    # List all sources from all presented sources excluding exclude pathes
+    [% const normalizedSources = sourceList(config.cxx.src_dirs, config.cxx.src_exclude); %]
+    [% for (let i in normalizedSources) { %]
+        list(APPEND [= config.name =]_SOURCES "[= cmakeNormalize(normalizedSources[i]) =]")
+    [% } %]
 
-# List all sources from all presented sources excluding exclude pathes
-[% const normalizedSources = sourceList(config.cxx.src_dirs, config.cxx.src_exclude); %]
-[% for (let i in normalizedSources) { %]
-    list(APPEND [= config.name =]_SOURCES "[= cmakeNormalize(normalizedSources[i]) =]")
-[% } %]
-
-[% if (projectRoot == moduleRoot) { %]
     [% if (config.cxx.type == "shared_lib") { %]
         add_library([= config.name =] SHARED ${[= config.name =]_SOURCES})
     [% } else if (config.cxx.type == "static_lib") { %]
@@ -47,71 +41,93 @@ set(CMAKE_BUILD_TYPE Debug)
     [% } else if (config.cxx.type == "executable") { %]
         add_executable([= config.name =] ${[= config.name =]_SOURCES})
     [% } %]
-[% } else { %]
-    add_library([= config.name =] ${[= config.name =]_SOURCES})
-[% } %]
 
-# Pathes for header search
-target_include_directories([= config.name =]
-[= (projectRoot == moduleRoot ? "PRIVATE" : "PUBLIC") =]
-[% for (let i in config.cxx.header_dirs) { %]
-    "[= cmakeNormalize(config.cxx.header_dirs[i]) =]"
-[% } %]
-)
-
-[% if (modules.length > 0) {%]
-# Refer to dependencies. Look at main CMakeLists to find add_subdirectory calls.
-    target_link_libraries([= config.name =]
-    [% for (let i in modules) { %]
-        [= modules[i].config.name =]
+    # Pathes for header search
+    target_include_directories([= config.name =]
+    [= (projectRoot == moduleRoot ? "PRIVATE" : "PUBLIC") =]
+    [% for (let i in config.cxx.header_dirs) { %]
+        "[= cmakeNormalize(config.cxx.header_dirs[i]) =]"
     [% } %]
     )
-[% } %]
 
-# All preprocessor defenition from module configuration
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_clang.join(" ") =])
-    target_link_libraries([= config.name =] [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_clang.join(" ") =])
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_gnu.join(" ") =])
-    target_link_libraries([= config.name =] [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_gnu.join(" ") =])
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags.join(" ") =] [= config.cxx.flags_intel.join(" ") =])
-    target_link_libraries([= config.name =] [= config.cxx.link_flags.join(" ") =] [= config.cxx.link_flags_intel.join(" ") =])
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_compile_options([= config.name =] PRIVATE [= config.cxx.flags_msvc.join(" ") =])
-    target_link_libraries([= config.name =] [= config.cxx.link_flags_msvc.join(" ") =])
-endif()
-
-[% if (config.cmake.module_path) { %]
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
-    set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
-[% } %]
-
-[% for (let i in config.cmake.packages) { %]
-    find_package([= config.cmake.packages[i].name =] REQUIRED)
-    target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
-    target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
-[% } %]
-
-[% if (config.cxx.libs != undefined) { %]
-    [% if (config.cxx.libs.length > 0) {%]
-    	target_link_libraries([= config.name =]
-    	[% for (let i in config.cxx.libs) { %]
-    	     "[= cmakeNormalize(config.cxx.libs[i]) =]"
-    	[% } %]
-    	)
+    [% if (modules.length > 0) {%]
+    # Refer to dependencies. Look at main CMakeLists to find add_subdirectory calls.
+        target_link_libraries([= config.name =]
+        [% for (let i in modules) { %]
+            [% if (modules[i].config.cxx.type != "executable") { %]
+                [= modules[i].config.name =]
+            [% } %]
+        [% } %]
+        )
     [% } %]
-[% } %]
 
-[% if (projectRoot == moduleRoot) { %]
-    if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
-        if (EXISTS ${CMAKE_SOURCE_DIR}/resources)
-            add_custom_command(
-                    TARGET [= config.name =] POST_BUILD
-                    COMMAND cp -R
-                            ${CMAKE_SOURCE_DIR}/resources
-                            ${CMAKE_CURRENT_BINARY_DIR}/)
-        endif()
+    [% const flags = (config.cxx.flags || []).join() %]
+    [% const linkFlags = (config.cxx.link_flags || []).join() %]
+    [% const flagsClang = (config.cxx.flags_clang || []).join() %]
+    [% const linkFlagsClang = (config.cxx.link_flags_clang || []).join() %]
+    [% const flagsGnu = (config.cxx.flags_gnu || []).join() %]
+    [% const linkFlagsGnu = (config.cxx.link_flags_gnu || []).join() %]
+    [% const flagsIntel = (config.cxx.flags_intel || []).join() %]
+    [% const linkFlagsIntel = (config.cxx.link_flags_intel || []).join() %]
+    [% const flagsMsvc = (config.cxx.flags_msvc || []).join() %]
+    [% const linkFlagsMsvc = (config.cxx.link_flags_msvc || []).join() %]
+
+    # All preprocessor defenition from module configuration
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options([= config.name =] PRIVATE [= flags =] [= flagsClang =])
+        target_link_libraries([= config.name =] [= linkFlags =] [= linkFlagsClang =])
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options([= config.name =] PRIVATE [= flags =] [= flagsGnu =])
+        target_link_libraries([= config.name =] [= linkFlags =] [= linkFlagsGnu =])
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        target_compile_options([= config.name =] PRIVATE [= flags =] [= flagsIntel =])
+        target_link_libraries([= config.name =] [= linkFlags =] [= linkFlagsIntel =] )
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        target_compile_options([= config.name =] PRIVATE [= flagsMsvc =])
+        target_link_libraries([= config.name =] [= linkFlagsMsvc =])
     endif()
+
+    [% const defaultStandard = "c++17" %]
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        target_compile_options([= config.name =] PRIVATE "/std:[= config.cxx.standard || defaultStandard =]")
+    else()
+        target_compile_options([= config.name =] PRIVATE "-std=[= config.cxx.standard || defaultStandard =]")
+    endif()
+
+    [% if (typeof(config.cmake) == "object") { %]
+        [% if (config.cmake.module_path) { %]
+            set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
+            set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "[= cmakeNormalize(config.cmake.module_path) =]")
+        [% } %]
+
+        [% if (typeof(config.cmake.packages) == "object") { %]
+            [% for (let i in config.cmake.packages) { %]
+                find_package([= config.cmake.packages[i].name =] REQUIRED)
+                target_include_directories([= config.name =] PUBLIC [= config.cmake.packages[i].includes =])
+                target_link_libraries([= config.name =] [= config.cmake.packages[i].libs =])
+            [% } %]
+        [% } %]
+    [% } %]
+
+    [% if (config.cxx.libs != undefined) { %]
+        [% if (config.cxx.libs.length > 0) {%]
+            target_link_libraries([= config.name =]
+            [% for (let i in config.cxx.libs) { %]
+                 "[= cmakeNormalize(config.cxx.libs[i]) =]"
+            [% } %]
+            )
+        [% } %]
+    [% } %]
+
+    [% if (projectRoot == moduleRoot) { %]
+        if (NOT (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
+            if (EXISTS ${CMAKE_SOURCE_DIR}/resources)
+                add_custom_command(
+                        TARGET [= config.name =] POST_BUILD
+                        COMMAND cp -R
+                                ${CMAKE_SOURCE_DIR}/resources
+                                ${CMAKE_CURRENT_BINARY_DIR}/)
+            endif()
+        endif()
+    [% } %]
 [% } %]
