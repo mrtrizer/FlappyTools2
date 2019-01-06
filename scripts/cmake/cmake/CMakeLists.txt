@@ -2,15 +2,19 @@ cmake_minimum_required (VERSION 3.1.0)
 project([= config.name =] LANGUAGES CXX C)
 
 [% if (projectRoot == moduleRoot) { %]
+    # Prepare a script to run all built targets. The script is populated later in submodules recursively
+    add_custom_target(
+        PrepareRunExecutables_[= config.name =] ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "#!/bin/sh" > exec.sh && chmod +x exec.sh
+        VERBATIM)
+    # Next variables are used in submodules
+    set (MAIN_DIR ${CMAKE_BINARY_DIR})
+    set (ROOT_DIR ${PROJECT_SOURCE_DIR})
+[% } %]
 
+[% if (projectRoot == moduleRoot) { %]
     # Generation of compilation database
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    #IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
-    #  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    #    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    #    [= moduleRoot =]/compile_commands.json
-    #  )
-    #ENDIF()
 
     # Add subdirectories of all nested submodules to reffer them from other places
     # and avoid cross-refference problems.
@@ -18,8 +22,8 @@ project([= config.name =] LANGUAGES CXX C)
         add_subdirectory([= cmakeNormalize(overallModules[i].outDir) =])
     [% } %]
 [% } %]
-set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_BUILD_TYPE Debug)
 
 [% if (typeof(config.cmake) === "object" && typeof(config.cmake.subdirectories) === "object") { %]
     [% for (let i in config.cmake.subdirectories) { %]
@@ -40,6 +44,18 @@ set(CMAKE_BUILD_TYPE Debug)
         add_library([= config.name =] ${[= config.name =]_SOURCES})
     [% } else if (config.cxx.type == "executable") { %]
         add_executable([= config.name =] ${[= config.name =]_SOURCES})
+    [% } else { %]
+        add_executable([= config.name =] ${[= config.name =]_SOURCES})
+    [% } %]
+
+    [% if (config.cxx.type == "executable") { %]
+    # This target adds executable to the list of executables in the root of a project. This is needed to be able run all
+    # executables in project with one command and right working directory
+        add_custom_target(
+            RunExecutables_[= config.name =] ALL
+            COMMAND ${CMAKE_COMMAND} -E echo "(cd ${ROOT_DIR} && $<TARGET_FILE:[= config.name =]>)" >> ${MAIN_DIR}/exec.sh
+            VERBATIM
+        )
     [% } %]
 
     # Pathes for header search
