@@ -60,6 +60,6 @@ if (args.isPresented("help", "h")) {
             logger.loge(`Can't find script with name "${scriptName}"`);
         }
     } catch (e) {
-        logger.loge(`${e.message}`);
+        logger.loge(`${e.stack}`);
     }
 }

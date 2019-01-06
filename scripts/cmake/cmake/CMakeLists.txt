@@ -70,8 +70,9 @@ set(CMAKE_BUILD_TYPE Debug)
     # Refer to dependencies. Look at main CMakeLists to find add_subdirectory calls.
         target_link_libraries([= config.name =]
         [% for (let i in modules) { %]
-            [% if (modules[i].config.cxx.type != "executable") { %]
-                [= modules[i].config.name =]
+            [% const module = modules[i] %]
+            [% if (typeof(module.config.cxx) === "object" && module.config.cxx.type != "executable") { %]
+                [= module.config.name =]
             [% } %]
         [% } %]
         )
